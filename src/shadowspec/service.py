@@ -79,6 +79,7 @@ def run_demo(candidate: str) -> DemoResult:
             "The verdict is scoped to named fixtures and does not prove semantic equivalence.",
             "Static AST analysis does not resolve dynamic dispatch or runtime imports.",
             "Temporary workspaces and timeouts are not an OS-level security sandbox.",
+            "A candidate can detect the test environment and behave only under test; the verdict covers observed runs.",
         ),
         reviewer_checklist=(
             "Confirm lowercase codes remain invalid.",
