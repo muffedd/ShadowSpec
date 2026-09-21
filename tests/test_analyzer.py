@@ -121,3 +121,43 @@ def dynamic_entry():
     assert report.blast_radius("middle") == {"leaf"}
     assert report.dynamic_dispatch_limitations
     assert any("dynamic dispatch" in limitation.lower() for limitation in report.dynamic_dispatch_limitations)
+
+
+def test_undecodable_file_is_bounded_finding_not_crash(tmp_path):
+    (tmp_path / "bad.py").write_bytes(b"def f():\n    return b'\xff\xfe'\n")
+    (tmp_path / "ok.py").write_text("def okay():\n    return 1\n", encoding="utf-8")
+
+    report = analyze_repository(tmp_path, allowed_root=tmp_path)
+
+    assert report.files == ["bad.py", "ok.py"]
+    assert [function.name for function in report.functions] == ["okay"]
+    assert report.syntax_errors[0].path == "bad.py"
+
+
+def test_bom_prefixed_file_parses_like_the_interpreter(tmp_path):
+    (tmp_path / "bom.py").write_text("\ufeffdef flagged():\n    return 1\n", encoding="utf-8")
+
+    report = analyze_repository(tmp_path, allowed_root=tmp_path)
+
+    assert report.syntax_errors == []
+    assert [function.name for function in report.functions] == ["flagged"]
+
+
+def test_selected_files_reject_traversal_and_absolute_paths(tmp_path):
+    (tmp_path / "ok.py").write_text("def okay():\n    return 1\n", encoding="utf-8")
+
+    for bad in ("../outside.py", str(tmp_path / "ok.py")):
+        with pytest.raises(ValueError, match="relative to root"):
+            analyze_repository(tmp_path, allowed_root=tmp_path, selected_files=(bad,))
+
+
+def test_async_functions_and_unknown_reachability_start(tmp_path):
+    (tmp_path / "mod.py").write_text(
+        "async def fetch():\n    return 1\n",
+        encoding="utf-8",
+    )
+
+    report = analyze_repository(tmp_path, allowed_root=tmp_path)
+
+    assert [function.name for function in report.functions] == ["fetch"]
+    assert report.reachable_from("does_not_exist") == set()

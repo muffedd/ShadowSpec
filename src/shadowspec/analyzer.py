@@ -20,21 +20,11 @@ class FunctionRecord:
     name: str
     path: str
     lineno: int
-    end_lineno: int | None = None
     qualified_name: str | None = None
 
     def __post_init__(self) -> None:
         if self.qualified_name is None:
             object.__setattr__(self, "qualified_name", f"{self.path}::{self.name}")
-
-    @property
-    def line(self) -> int:
-        return self.lineno
-
-
-# ``FunctionInfo`` is a useful compatibility name for callers that prefer
-# the more descriptive term.
-FunctionInfo = FunctionRecord
 
 
 @dataclass(frozen=True)
@@ -48,18 +38,6 @@ class CallEdge:
     caller_qualified: str | None = None
     callee_qualified: str | None = None
 
-    @property
-    def source(self) -> str:
-        return self.caller
-
-    @property
-    def target(self) -> str:
-        return self.callee
-
-    @property
-    def line(self) -> int:
-        return self.lineno
-
 
 @dataclass(frozen=True)
 class SideEffectSignal:
@@ -71,14 +49,6 @@ class SideEffectSignal:
     function: str | None = None
     detail: str | None = None
 
-    @property
-    def category(self) -> str:
-        return self.kind
-
-    @property
-    def line(self) -> int:
-        return self.lineno
-
 
 @dataclass(frozen=True)
 class SyntaxErrorRecord:
@@ -88,10 +58,6 @@ class SyntaxErrorRecord:
     message: str
     lineno: int | None = None
     offset: int | None = None
-
-    @property
-    def error(self) -> str:
-        return self.message
 
 
 @dataclass
@@ -105,22 +71,6 @@ class AnalysisReport:
     syntax_errors: list[SyntaxErrorRecord] = field(default_factory=list)
     dynamic_dispatch_limitations: list[str] = field(default_factory=list)
 
-    @property
-    def calls(self) -> list[CallEdge]:
-        return self.call_edges
-
-    @property
-    def side_effects(self) -> list[SideEffectSignal]:
-        return self.side_effect_signals
-
-    @property
-    def errors(self) -> list[SyntaxErrorRecord]:
-        return self.syntax_errors
-
-    @property
-    def limitations(self) -> list[str]:
-        return self.dynamic_dispatch_limitations
-
     def reachable_from(self, function: str) -> set[str]:
         """Return local function names reachable through static call edges.
 
@@ -133,7 +83,7 @@ class AnalysisReport:
         starts = {
             record.qualified_name
             for record in self.functions
-            if function in {record.name, record.qualified_name, f"{record.path}:{record.name}"}
+            if function in {record.name, record.qualified_name}
         }
         if not starts:
             return set()
@@ -217,7 +167,6 @@ class _InventoryVisitor(ast.NodeVisitor):
             name=node.name,
             path=self.path,
             lineno=node.lineno,
-            end_lineno=getattr(node, "end_lineno", None),
             qualified_name=qualified,
         )
         self.functions.append(record)
@@ -377,7 +326,8 @@ def analyze_repository(
         relative_path = source_path.relative_to(root_path).as_posix()
         report.files.append(relative_path)
         try:
-            source = source_path.read_text(encoding="utf-8")
+            # utf-8-sig accepts the legal BOM form without shifting offsets.
+            source = source_path.read_text(encoding="utf-8-sig")
             tree = ast.parse(source, filename=relative_path)
         except SyntaxError as exc:
             report.syntax_errors.append(
@@ -387,6 +337,13 @@ def analyze_repository(
                     lineno=exc.lineno,
                     offset=exc.offset,
                 )
+            )
+            continue
+        except UnicodeDecodeError as exc:
+            # An undecodable file is a bounded per-file finding, not a reason
+            # to abort the whole inventory.
+            report.syntax_errors.append(
+                SyntaxErrorRecord(path=relative_path, message=str(exc))
             )
             continue
         visitor = _InventoryVisitor(relative_path)
@@ -399,26 +356,11 @@ def analyze_repository(
     return report
 
 
-def reachable_functions(report: AnalysisReport, function: str) -> set[str]:
-    """Convenience wrapper for :meth:`AnalysisReport.reachable_from`."""
-
-    return report.reachable_from(function)
-
-
-def blast_radius(report: AnalysisReport, function: str) -> set[str]:
-    """Convenience wrapper for :meth:`AnalysisReport.blast_radius`."""
-
-    return report.blast_radius(function)
-
-
 __all__ = [
     "AnalysisReport",
     "CallEdge",
-    "FunctionInfo",
     "FunctionRecord",
     "SideEffectSignal",
     "SyntaxErrorRecord",
     "analyze_repository",
-    "blast_radius",
-    "reachable_functions",
 ]
