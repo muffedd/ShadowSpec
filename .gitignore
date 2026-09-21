@@ -9,6 +9,7 @@ htmlcov/
 .codex-finalizer/
 dist/
 build_artifacts/
+build/
 output/
 tmp/
 *.egg-info/

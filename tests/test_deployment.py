@@ -3,10 +3,17 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).parents[1]
+
+
+def test_distribution_does_not_advertise_source_checkout_cli():
+    project = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert "shadowspec" not in project["project"].get("scripts", {})
 
 
 def test_app_imports_src_package_and_bundled_fixture_without_pythonpath():

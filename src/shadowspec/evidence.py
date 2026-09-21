@@ -23,6 +23,13 @@ class EvidenceInput:
 def render_markdown(evidence):
     validation = evidence.validation
     bullets = lambda values: "\n".join(f"- {value}" for value in values)
+    changed_files = bullets(evidence.changed_files)
+    if not changed_files:
+        changed_files = (
+            "_None — this is the unchanged baseline._"
+            if validation.candidate == "baseline"
+            else "_None reported._"
+        )
     analysis = json.dumps(evidence.analysis, indent=2, sort_keys=True)
     provenance = json.dumps(validation.provenance, indent=2, sort_keys=True)
     return f"""# ShadowSpec evidence pack
@@ -55,7 +62,7 @@ def render_markdown(evidence):
 
 ## Changed files
 
-{bullets(evidence.changed_files)}
+{changed_files}
 
 ## Static analysis
 

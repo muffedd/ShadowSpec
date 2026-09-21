@@ -17,8 +17,8 @@ The demo shows three states:
 ## Architecture
 
 - `src/shadowspec/analyzer.py`: Python AST inventory, calls, side-effect signals, and bounded blast-radius graph.
-- `src/shadowspec/scenarios.py`: deterministic fixture definitions and expected observations.
-- `src/shadowspec/validator.py`: isolated per-run workspaces, patch selection, subprocess pytest with timeout, normalized results.
+- `fixtures/legacy_orders/variants`: audited baseline, broad, and narrow candidate implementations.
+- `src/shadowspec/validator.py`: an embedded deterministic check matrix run by an isolated Python subprocess with timeout and normalized results.
 - `src/shadowspec/evidence.py`: reviewer-ready Markdown and JSON evidence packs.
 - `src/shadowspec/service.py`: orchestration API used by CLI and Streamlit.
 - `app.py`: accessible, responsive judge UI with a single golden path.
@@ -26,11 +26,11 @@ The demo shows three states:
 
 ## Security boundary
 
-Hosted execution is restricted to the bundled fixture. Public GitHub URLs, if exposed, are validated and analysis-only. No uploaded or fetched code is imported, installed, or executed. Paths are canonicalized beneath a fixed root. Subprocesses have a timeout, bounded output, a temporary working directory, and no secrets passed explicitly. The UI never claims OS-level sandboxing.
+Hosted execution is restricted to the bundled fixture. Public GitHub URL input is disabled in the current release. No uploaded or fetched code is imported, installed, or executed. Paths are canonicalized beneath a fixed root. Subprocesses have a timeout, bounded output, a temporary working directory, and no secrets passed explicitly. The UI never claims OS-level sandboxing.
 
-## IBM Bob centrality
+## Workflow guidance for IBM Bob
 
-Repository artifacts define five Bob roles: mapper, characterization-test designer, implementer, critic/security reviewer, and release reviewer. The checked-in workflow explains how Bob full-repository context connects the behavior map, tests, patch, and release evidence. Exported Bob sessions must be placed in `bob_sessions/` when run in the actual IBM Bob IDE. The zero-key public demo runs deterministic local analysis and never impersonates live Bob inference.
+Repository Markdown defines five proposed roles for use in an IBM Bob IDE: mapper, characterization-test designer, implementer, critic/security reviewer, and release reviewer. No Bob runtime session or export is included in the current repository, so these files document the intended handoff rather than proving that Bob performed it. If the workflow is run later, its redacted export belongs in `bob_sessions/`. The zero-key public demo runs deterministic local analysis and never impersonates live Bob inference.
 
 ## Non-goals
 
@@ -51,4 +51,3 @@ The UI uses semantic headings, visible focus states, high contrast, text labels 
 - The narrow candidate passes characterization and acceptance checks.
 - Evidence export includes source hashes, changed files, intended delta, preserved behavior, risks, reviewer checklist, rollback notes, and raw test summaries.
 - The full test suite is green and the demo completes in under three minutes.
-

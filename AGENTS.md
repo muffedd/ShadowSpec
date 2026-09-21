@@ -65,10 +65,13 @@ its transcript/export separate from the zero-key demo path.
 
 Hosted execution is restricted to the bundled fixture. Public GitHub URLs, if
 supported by the application, are analysis-only; fetched or uploaded code is
-not imported, installed, or executed. Canonicalize paths beneath the fixed
-fixture root, bound subprocess time and output, use a temporary workspace,
-and never pass secrets explicitly. These measures are application guardrails,
-not an OS-level sandbox claim.
+not imported, installed, or executed. The immutable server-owned SHA-256 manifest
+for the three bundled variants is the verdict-integrity boundary: verify the
+baseline and selected source bytes before child-process launch. Canonicalize paths
+beneath the fixed fixture root, bound subprocess time and output, use a temporary
+workspace, and never pass secrets explicitly. These measures are application
+guardrails, not an OS-level sandbox claim; hash validation does not isolate a
+running process from the host.
 
 Never place API keys, environment variables, cookies, private source, absolute
 host paths, or credentials in Bob session exports or evidence packs.
@@ -81,4 +84,3 @@ the repository revision/source hash, role sequence, bounded verdict, tests,
 and known limitations. If an IDE uses a different export format, preserve the
 same information in an adjacent Markdown manifest rather than inventing
 unsupported syntax.
-

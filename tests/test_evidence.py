@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 from shadowspec.evidence import EvidenceInput, render_json, render_markdown
 from shadowspec.validator import ValidationRun
@@ -36,6 +37,20 @@ def test_markdown_contains_reviewer_ready_sections():
     assert "a" * 64 in text
 
 
+def test_baseline_markdown_explains_empty_changed_files():
+    payload = sample_input()
+    baseline = replace(
+        payload,
+        changed_files=(),
+        validation=replace(payload.validation, candidate="baseline", verdict="rejected"),
+    )
+
+    text = render_markdown(baseline)
+
+    changed_files_section = text.split("## Changed files", 1)[1].split("## Static analysis", 1)[0]
+    assert "_None — this is the unchanged baseline._" in changed_files_section
+
+
 def test_json_is_stable_and_machine_readable():
     first = render_json(sample_input())
     second = render_json(sample_input())
@@ -53,4 +68,3 @@ def test_exports_do_not_include_absolute_paths_or_environment(monkeypatch):
     assert "do-not-leak" not in combined
     assert "/workspace/" not in combined
     assert "SHADOWSPEC_SECRET" not in combined
-

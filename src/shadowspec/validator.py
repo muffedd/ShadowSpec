@@ -4,22 +4,58 @@ from __future__ import annotations
 
 import hashlib
 import json
-import shutil
+import os
+import selectors
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterator
 
 
 ALLOWED_CANDIDATES = frozenset({"baseline", "bad", "narrow"})
+AUDITED_VARIANT_SHA256 = {
+    "baseline.py": "8060c930143deb28599c84bfb3257324ff3de01620b509ada8b0028558ee3f3a",
+    "bad.py": "bb87bac06fb61f7fe5b9d2f64cae41d6f4b792b36ebe4e86bb3a748d69db61a4",
+    "narrow.py": "0dcf67131a0282d30a6cfa18bbae8be7fdbc0bd6b5e2dd16c50c37ba5a98d5b0",
+}
 OUTPUT_LIMIT = 4000
 EXECUTION_TIMEOUT_SECONDS = 3
+_RESULT_LIMIT = OUTPUT_LIMIT
+_EXPECTED_CHECKS = (
+    ("uppercase code preserves complete pricing result and audit row", "characterization"),
+    ("lowercase code remains invalid with complete pricing result and audit row", "characterization"),
+    ("unknown code keeps complete full-price result and audit row", "characterization"),
+    ("negative subtotal raises validation error without audit write", "characterization"),
+    ("surrounding whitespace is accepted with complete pricing result and audit row", "acceptance"),
+)
+_SUBPROCESS_LOCK = threading.Lock()
 
 
 class CandidateNotAllowed(ValueError):
     """Raised when a candidate is outside the server-owned allowlist."""
+
+
+class _ExecutionTimedOut(Exception):
+    """Internal signal for a bounded execution timeout."""
+
+
+class _OutputLimitExceeded(Exception):
+    """Internal signal for a child output stream exceeding its byte cap."""
+
+    def __init__(self, stream: str) -> None:
+        super().__init__(stream)
+        self.stream = stream
+
+
+class _ResultLimitExceeded(Exception):
+    """Internal signal for an oversized control result."""
 
 
 @dataclass(frozen=True)
@@ -56,29 +92,14 @@ class ValidationRun:
         }
 
 
-_RUNNER = r'''import importlib.util, json, sqlite3, sys
+_RUNNER = r'''import importlib.util, json, os, sqlite3, sys
 from pathlib import Path
 
-class _BoundedTextIO:
-    def __init__(self, stream, limit=4000):
-        self._stream = stream
-        self._limit = limit
-        self._written = 0
-
-    def write(self, value):
-        encoded = value.encode("utf-8", "replace")
-        remaining = max(0, self._limit - self._written)
-        if remaining:
-            self._stream.write(encoded[:remaining].decode("utf-8", "ignore"))
-        self._written += len(encoded)
-        return len(value)
-
-    def flush(self):
-        self._stream.flush()
-
-sys.stdout = _BoundedTextIO(sys.stdout)
-sys.stderr = _BoundedTextIO(sys.stderr)
-source, db_path = Path(sys.argv[1]), Path(sys.argv[2])
+_json_dumps = json.dumps
+_os_close = os.close
+_os_exit = os._exit
+_os_write = os.write
+source, db_path, result_fd = Path(sys.argv[1]), Path(sys.argv[2]), int(sys.argv[3])
 spec = importlib.util.spec_from_file_location("candidate", source)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
@@ -107,8 +128,207 @@ for case in cases:
         except Exception:
             passed=False
     checks.append({"name":case["name"],"kind":case["kind"],"passed":passed})
-print(json.dumps(checks, sort_keys=True))
+payload = _json_dumps(checks, sort_keys=True).encode("utf-8")
+while payload:
+    written = _os_write(result_fd, payload)
+    payload = payload[written:]
+_os_close(result_fd)
+_os_exit(0)
 '''
+
+
+@dataclass(frozen=True)
+class _CompletedExecution:
+    returncode: int
+    result: bytes
+
+
+@contextmanager
+def _linux_subreaper() -> Iterator[None]:
+    """Temporarily adopt same-group descendants so they can be reaped."""
+
+    if sys.platform != "linux":
+        yield
+        return
+
+    # prctl is Linux-specific. Failure only removes the explicit orphan-reaping
+    # enhancement; process-group termination remains in force.
+    libc = None
+    changed = False
+    try:
+        import ctypes
+
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        available = libc.prctl(37, ctypes.byref(previous), 0, 0, 0) == 0
+        changed = available and previous.value == 0
+        if changed:
+            available = libc.prctl(36, 1, 0, 0, 0) == 0
+    except Exception:
+        available = False
+
+    if not available:
+        yield
+        return
+
+    try:
+        yield
+    finally:
+        if changed and libc is not None:
+            libc.prctl(36, 0, 0, 0, 0)
+
+
+def _kill_and_reap_process_group(process: subprocess.Popen[bytes]) -> int:
+    """Stop the isolated process group and reap adopted Linux descendants."""
+
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        except OSError:
+            if process.returncode is None:
+                process.kill()
+    elif process.returncode is None:
+        process.kill()
+
+    try:
+        returncode = process.wait(timeout=1)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        returncode = process.wait()
+
+    if sys.platform == "linux":
+        deadline = time.monotonic() + 1
+        while True:
+            try:
+                descendant, _ = os.waitpid(-process.pid, os.WNOHANG)
+            except ChildProcessError:
+                break
+            if descendant:
+                continue
+            if time.monotonic() >= deadline:
+                break
+            time.sleep(0.005)
+    return returncode
+
+
+def _read_bounded_process(
+    process: subprocess.Popen[bytes], result_fd: int, timeout: float
+) -> bytes:
+    selector = selectors.DefaultSelector()
+    streams = {
+        "stdout": process.stdout,
+        "stderr": process.stderr,
+        "result": result_fd,
+    }
+    counts = {"stdout": 0, "stderr": 0, "result": 0}
+    result = bytearray()
+    deadline = time.monotonic() + timeout
+    try:
+        for name, stream in streams.items():
+            if stream is None:
+                continue
+            selector.register(stream, selectors.EVENT_READ, name)
+
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise _ExecutionTimedOut
+            events = selector.select(remaining)
+            if not events:
+                raise _ExecutionTimedOut
+            for key, _ in events:
+                name = key.data
+                limit = _RESULT_LIMIT if name == "result" else OUTPUT_LIMIT
+                read_size = min(65536, limit - counts[name] + 1)
+                try:
+                    chunk = os.read(key.fd, read_size)
+                except BlockingIOError:
+                    continue
+                if not chunk:
+                    selector.unregister(key.fileobj)
+                    continue
+                counts[name] += len(chunk)
+                if counts[name] > limit:
+                    if name == "result":
+                        raise _ResultLimitExceeded
+                    raise _OutputLimitExceeded(name)
+                if name == "result":
+                    result.extend(chunk)
+        return bytes(result)
+    finally:
+        selector.close()
+
+
+def _execute_runner(arguments: list[str], workspace: Path) -> _CompletedExecution:
+    result_read, result_write = os.pipe()
+    try:
+        with _SUBPROCESS_LOCK:
+            with _linux_subreaper():
+                try:
+                    process = subprocess.Popen(
+                        [*arguments, str(result_write)],
+                        cwd=workspace,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        env={},
+                        start_new_session=True,
+                        pass_fds=(result_write,),
+                    )
+                finally:
+                    os.close(result_write)
+
+                try:
+                    result = _read_bounded_process(
+                        process, result_read, EXECUTION_TIMEOUT_SECONDS
+                    )
+                finally:
+                    try:
+                        returncode = _kill_and_reap_process_group(process)
+                    finally:
+                        if process.stdout is not None:
+                            process.stdout.close()
+                        if process.stderr is not None:
+                            process.stderr.close()
+    finally:
+        os.close(result_read)
+    return _CompletedExecution(returncode=returncode, result=result)
+
+
+def _parse_check_results(payload: bytes) -> list[dict[str, object]]:
+    def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        result: dict[str, object] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("invalid check results")
+            result[key] = value
+        return result
+
+    def reject_non_json_constant(_: str) -> object:
+        raise ValueError("invalid check results")
+
+    try:
+        checks = json.loads(
+            payload.decode("utf-8"),
+            object_pairs_hook=reject_duplicate_keys,
+            parse_constant=reject_non_json_constant,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+        raise ValueError("invalid check results") from None
+
+    if type(checks) is not list or len(checks) != len(_EXPECTED_CHECKS):
+        raise ValueError("invalid check results")
+    for item, (expected_name, expected_kind) in zip(checks, _EXPECTED_CHECKS):
+        if (
+            type(item) is not dict
+            or set(item) != {"name", "kind", "passed"}
+            or item["name"] != expected_name
+            or item["kind"] != expected_kind
+            or type(item["passed"]) is not bool
+        ):
+            raise ValueError("invalid check results")
+    return checks
 
 
 def validate_candidate(candidate: str, fixture_root: Path) -> ValidationRun:
@@ -149,27 +369,62 @@ def validate_candidate(candidate: str, fixture_root: Path) -> ValidationRun:
         "validator_sha256": validator_hash,
         "runner_sha256": runner_hash,
     }
+    checked_hashes = {
+        "baseline.py": baseline_hash,
+        f"{candidate}.py": source_hash,
+    }
+    mismatched_files = sorted(
+        filename
+        for filename, actual_hash in checked_hashes.items()
+        if actual_hash != AUDITED_VARIANT_SHA256[filename]
+    )
+    if mismatched_files:
+        return _error_run(
+            candidate,
+            source_hash,
+            provenance,
+            failed_check="audited fixture integrity check failed",
+            code="integrity_error",
+            message="audited fixture integrity check failed",
+            details={"files": mismatched_files},
+        )
 
     with tempfile.TemporaryDirectory(prefix="shadowspec-") as temporary:
         workspace = Path(temporary)
         copied_source = workspace / "candidate.py"
         try:
-            shutil.copyfile(canonical_source, copied_source)
-            completed = subprocess.run(
-                [sys.executable, "-I", "-c", _RUNNER, str(copied_source), str(workspace / "audit.db")],
-                cwd=workspace,
-                capture_output=True,
-                text=True,
-                timeout=EXECUTION_TIMEOUT_SECONDS,
-                check=False,
-                env={},
+            copied_source.write_bytes(source_bytes)
+            completed = _execute_runner(
+                [
+                    sys.executable,
+                    "-I",
+                    "-c",
+                    _RUNNER,
+                    str(copied_source),
+                    str(workspace / "audit.db"),
+                ],
+                workspace,
             )
-        except subprocess.TimeoutExpired:
+        except _ExecutionTimedOut:
             return _error_run(
                 candidate, source_hash, provenance,
                 failed_check="candidate execution timed out",
                 code="timeout", message="candidate execution timed out",
                 details={"timeout_seconds": EXECUTION_TIMEOUT_SECONDS},
+            )
+        except _OutputLimitExceeded as error:
+            return _error_run(
+                candidate, source_hash, provenance,
+                failed_check="candidate execution exceeded output limit",
+                code="output_limit",
+                message="candidate execution exceeded output limit",
+                details={"output_limit_bytes": OUTPUT_LIMIT, "stream": error.stream},
+            )
+        except _ResultLimitExceeded:
+            return _error_run(
+                candidate, source_hash, provenance,
+                failed_check="candidate execution returned invalid results",
+                code="invalid_output", message="candidate execution returned invalid results",
             )
         except (OSError, subprocess.SubprocessError):
             return _error_run(
@@ -193,7 +448,7 @@ def validate_candidate(candidate: str, fixture_root: Path) -> ValidationRun:
         )
 
     try:
-        checks = json.loads(completed.stdout)
+        checks = _parse_check_results(completed.result)
         preserved = [item for item in checks if item["kind"] == "characterization"]
         acceptance = [item for item in checks if item["kind"] == "acceptance"]
         failed = tuple(item["name"] for item in checks if not item["passed"])

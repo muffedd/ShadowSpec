@@ -1,5 +1,7 @@
 # ShadowSpec
 
+> **Pre-kickoff reference baseline.** This repository is scaffolding and review evidence, not the eligible submitted core. See [event-window provenance](docs/release/event-window-provenance.md).
+
 **Reject the broad patch. Accept the narrow one. Export the proof.**
 
 ShadowSpec is a zero-key evidence workbench for one risky maintenance job: changing undocumented legacy behavior without quietly changing something else.
@@ -38,12 +40,18 @@ pytest -q
 streamlit run app.py
 ```
 
+`requirements.in` and `requirements-dev.in` are the small direct-dependency
+inputs. The corresponding `.txt` files pin the complete Python 3.12 dependency
+graphs consumed by deployment and CI.
+
 The `app.py` entry point adds the repository's `src/` directory before importing
 the application package, so this launch works after a dependencies-only install
 without setting `PYTHONPATH`. Keep the bundled `fixtures/legacy_orders` directory
 alongside `app.py` in deployments.
 
-CLI proof:
+The CLI is intentionally a source-checkout command because it consumes the
+repository-level audited fixture. The distribution does not install a
+`shadowspec` console script.
 
 ```bash
 PYTHONPATH=src python -m shadowspec.cli run bad --format markdown
@@ -69,7 +77,7 @@ The analyzer never imports repository code. It inventories Python files, functio
 
 These controls are not an OS-level sandbox. The hosted demo does not execute arbitrary uploaded or fetched repositories.
 
-## Why IBM Bob is central
+## Workflow guidance for IBM Bob
 
 ShadowSpec includes repository guidance for five Bob roles:
 
@@ -79,9 +87,15 @@ ShadowSpec includes repository guidance for five Bob roles:
 4. Critic/security reviewer
 5. Release reviewer
 
-Bob's full-repository context connects behavior mapping, characterization-test design, implementation, criticism, and release review instead of treating each file as an isolated prompt. The actor-critic handoff makes the patch falsifiable before release. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md), and the role contracts under [`bob/`](bob/).
+The checked-in Markdown files propose a full-repository, actor-critic handoff for
+use in an IBM Bob IDE. They are workflow guidance, not evidence that Bob performed
+this build. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md),
+and the role contracts under [`bob/`](bob/).
 
-The Markdown role files are conservative workflow artifacts. They do not claim a specific Bob runtime syntax. When the project is run in IBM Bob, exported and redacted session evidence belongs in [`bob_sessions/`](bob_sessions/). The public zero-key demo performs deterministic local analysis and does not impersonate live Bob inference.
+No Bob runtime session or session export is included in the current repository.
+If the workflow is later run in IBM Bob, its redacted export belongs in
+[`bob_sessions/`](bob_sessions/). The public zero-key demo performs deterministic
+local analysis and does not impersonate live Bob inference.
 
 ## Evidence pack
 
@@ -100,9 +114,13 @@ Each run exports:
 - Bundled fixture execution only
 - No arbitrary uploads, dependency installation, or fetched-code execution
 - Candidate allowlist checked before file access
+- Immutable server-owned SHA-256 manifest checked for the baseline and selected
+  candidate before subprocess launch; these audited hashes are the
+  verdict-integrity boundary
 - Repository paths constrained beneath a fixed root, including symlink checks
 - Per-run temporary directory, three-second timeout, bounded output
 - No secrets passed explicitly to the validation subprocess
+- These application controls are not an OS-level sandbox
 - No autonomous merge or deployment
 
 See [security.md](docs/submission/security.md) for the threat boundary and limitations.
@@ -113,7 +131,7 @@ See [security.md](docs/submission/security.md) for the threat boundary and limit
 pytest -q --cov=shadowspec --cov-report=term --cov-fail-under=85
 ```
 
-Verified release baseline: **43 tests passed, 92.12% coverage**. CI enforces at least 85% coverage.
+Verified reference baseline: **64 tests passed, 89.29% coverage**. CI enforces at least 85% coverage.
 
 ## Demo and submission
 
@@ -123,6 +141,8 @@ Verified release baseline: **43 tests passed, 92.12% coverage**. CI enforces at 
 
 ## Submission materials
 
+- [Hackathon slide deck](assets/submission/ShadowSpec-Hackathon-Deck.pptx)
+- [One-page project brief](assets/submission/ShadowSpec-One-Page.pdf)
 - [Under-three-minute demo script](docs/submission/demo-script.md)
 - [Judge pitch](docs/submission/judge-pitch.md)
 - [Submission copy](docs/submission/submission-copy.md)

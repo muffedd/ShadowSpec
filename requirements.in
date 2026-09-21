@@ -1,0 +1,2 @@
+# Direct runtime dependencies. Compile to requirements.txt.
+streamlit==1.50.0

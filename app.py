@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import logging
 import sys
 from pathlib import Path
 
@@ -15,6 +17,9 @@ if str(SRC_ROOT) not in sys.path:
 from shadowspec.service import run_demo
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 st.set_page_config(page_title="ShadowSpec", page_icon="◐", layout="wide")
 st.markdown(
     """
@@ -24,7 +29,7 @@ st.markdown(
       --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
       --accent: #c7ff4a;
       --surface: #11151a;
-      --border: #343a44;
+      --border: #626b77;
       --muted: #b8bdc7;
     }
     .stApp { background: #0b0d10; color: #f4f1e8; }
@@ -37,7 +42,7 @@ st.markdown(
     .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.12em; font-size:.74rem; font-weight:700; }
     .hero { font-size: clamp(2.4rem, 7vw, 5.8rem); line-height:.94; letter-spacing:-.045em; font-weight:750; margin:.4rem 0 1rem; }
     .lede { color:var(--muted); max-width:740px; font-size:1.08rem; line-height:1.6; letter-spacing:.003em; }
-    .proof-flow { display:grid; grid-template-columns:repeat(3, 1fr); gap:.65rem; margin:1.4rem 0 2rem; }
+    .proof-flow { display:grid; grid-template-columns:repeat(3, 1fr); gap:.65rem; margin:1.4rem 0 2rem; padding:0; list-style:none; }
     .proof-step { border:1px solid var(--border); background:var(--surface); border-radius:14px; padding:.85rem 1rem; }
     .proof-step strong { display:block; color:#f4f1e8; font-size:.95rem; letter-spacing:-.008em; }
     .proof-step span { color:var(--muted); font-size:.82rem; line-height:1.45; letter-spacing:.006em; }
@@ -45,7 +50,10 @@ st.markdown(
     .proof-step.good { border-left:3px solid var(--accent); }
     .proof-step.safe { border-left:3px solid #7fc8ff; }
     .panel { border:1px solid var(--border); background:var(--surface); border-radius:18px; padding:1.15rem; }
-    .proof { color:var(--accent); font-weight:700; }
+    .contract-heading { color:var(--accent); font-size:.95rem; font-weight:700; margin:1rem 0 .35rem; }
+    .contract-heading:first-child { margin-top:0; }
+    .delta-token { color:#f4f1e8; font-weight:750; }
+    .space-key { color:var(--muted); font-size:.82rem; }
     .boundary { color:#b8bdc7; font-size:.9rem; }
     div[data-testid="stButton"] button,
     div[data-testid="stDownloadButton"] button {
@@ -90,11 +98,11 @@ st.markdown(
 )
 st.markdown(
     """
-    <div class="proof-flow" aria-label="Judge proof sequence">
-      <div class="proof-step bad"><strong>1 · Reject the bad patch</strong><span>Catch the hidden case-sensitivity regression.</span></div>
-      <div class="proof-step good"><strong>2 · Accept the narrow patch</strong><span>Prove only the requested whitespace delta.</span></div>
-      <div class="proof-step safe"><strong>3 · Export the evidence</strong><span>Diff, hashes, checks, risks, and rollback.</span></div>
-    </div>
+    <ol class="proof-flow" aria-label="Judge proof sequence">
+      <li class="proof-step bad"><strong><span aria-hidden="true">1 · </span>Reject the bad patch</strong><span>Catch the hidden case-sensitivity regression.</span></li>
+      <li class="proof-step good"><strong><span aria-hidden="true">2 · </span>Accept the narrow patch</strong><span>Prove only the requested whitespace delta.</span></li>
+      <li class="proof-step safe"><strong><span aria-hidden="true">3 · </span>Export the evidence</strong><span>Diff, hashes, checks, risks, and rollback.</span></li>
+    </ol>
     """,
     unsafe_allow_html=True,
 )
@@ -120,9 +128,9 @@ with right:
     st.markdown(
         """
         <div class="panel">
-          <p class="proof">Requested delta</p>
-          <p>Accept <code> SAVE10 </code> while changing nothing else.</p>
-          <p class="proof">Frozen observations</p>
+          <h4 class="contract-heading">Requested delta</h4>
+          <p>Accept <code class="delta-token">␠SAVE10␠</code> while changing nothing else. <span class="space-key">␠ = space</span></p>
+          <h4 class="contract-heading">Frozen observations</h4>
           <p>Case sensitivity · pricing · negative-input error · SQLite audit write</p>
           <p class="boundary">“Accepted” means these named observations passed. It is not a universal safety claim.</p>
         </div>
@@ -139,24 +147,48 @@ if run_clicked:
     try:
         with st.spinner("Running characterization and acceptance checks…"):
             result = run_demo(candidate)
-    except Exception as exc:
-        st.error(f"Validation could not complete: {exc}")
+    except Exception:
+        LOGGER.exception("Unexpected failure while running prepared candidate %s", candidate)
+        st.error("ERROR · Validation could not complete. Please retry or use the local CLI.")
     else:
         st.divider()
         st.subheader("2 · Differential verdict")
         if result.validation.verdict == "accepted":
             st.success("ACCEPTED · preserved behavior and requested delta both pass", icon="✅")
-        else:
+        elif result.validation.verdict == "rejected":
             st.error("REJECTED · the candidate does not satisfy the full contract", icon="⛔")
+        else:
+            st.error("ERROR · validation did not complete, so no contract verdict was issued", icon="⚠️")
 
         a, b, c, d = st.columns(4)
-        a.metric("Characterization", "PASS" if result.validation.characterization_passed else "FAIL")
-        b.metric("Acceptance", "PASS" if result.validation.acceptance_passed else "FAIL")
+        checks_completed = result.validation.verdict != "error"
+        a.metric(
+            "Characterization",
+            "PASS" if result.validation.characterization_passed else "FAIL" if checks_completed else "NOT RUN",
+        )
+        b.metric(
+            "Acceptance",
+            "PASS" if result.validation.acceptance_passed else "FAIL" if checks_completed else "NOT RUN",
+        )
         c.metric("Files mapped", result.analysis["file_count"])
         d.metric("Run ID", result.validation.run_id)
 
         if result.validation.failed_checks:
-            st.warning("Failed checks: " + ", ".join(result.validation.failed_checks), icon="⚠️")
+            label = "Run issue" if result.validation.verdict == "error" else "Failed checks"
+            st.warning(label + ": " + ", ".join(result.validation.failed_checks), icon="⚠️")
+
+        try:
+            check_results = json.loads(result.validation.output).get("checks", [])
+        except (AttributeError, TypeError, ValueError):
+            check_results = []
+        if check_results:
+            st.markdown("#### Check results")
+            status_lines = []
+            for check in check_results:
+                status = "PASS" if check.get("passed") else "FAIL"
+                group = "Preserved" if check.get("kind") == "characterization" else "Requested delta"
+                status_lines.append(f"- **{status}** — {group}: {check.get('name', 'Unnamed check')}")
+            st.markdown("\n".join(status_lines))
 
         with st.expander("Behavior map and side-effect signals", expanded=True):
             st.write("Functions:", ", ".join(result.analysis["functions"]))
