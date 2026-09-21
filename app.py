@@ -61,7 +61,11 @@ st.markdown(
       transition:transform 140ms var(--ease-out), opacity 180ms var(--ease-in-out);
       touch-action:manipulation;
     }
-    div[data-testid="stButton"] button { background:var(--accent); color:#10130b; border:0; font-weight:750; }
+    div[data-testid="stButton"] button,
+    div[data-testid="stButton"] button[kind="primary"],
+    div[data-testid="stButton"] button[kind="primary"]:not(:disabled) {
+      background:var(--accent) !important; color:#10130b !important; border:0; font-weight:750;
+    }
     div[data-testid="stButton"] button:hover,
     div[data-testid="stDownloadButton"] button:hover { opacity:.9; }
     div[data-testid="stButton"] button:active,
