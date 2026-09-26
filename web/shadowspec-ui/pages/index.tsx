@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import Head from "next/head";
 import { AnimatePresence, motion } from "framer-motion";
 import CandidateRail from "@/components/CandidateRail";
 import VerdictPanel from "@/components/VerdictPanel";
@@ -39,6 +40,22 @@ export default function WorkbenchPage() {
   const isAccepted = verdict.verdict === "accepted";
 
   return (
+    <>
+      <Head>
+        <title>ShadowSpec - behavior firewall for legacy code changes</title>
+        <meta
+          name="description"
+          content="Reject the broad patch. Accept the narrow one. Export the proof. ShadowSpec freezes observed legacy behavior, rejects an over-broad patch, accepts the minimal patch, and exports reviewer-ready evidence."
+        />
+        <meta property="og:title" content="ShadowSpec - behavior firewall for legacy code changes" />
+        <meta
+          property="og:description"
+          content="Reject the broad patch. Accept the narrow one. Export the proof. A zero-key evidence workbench for legacy maintenance, built with IBM Bob."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://shadowspec-demo.pages.dev/" />
+        <meta name="twitter:card" content="summary" />
+      </Head>
     <div
       style={{
         display: "flex",
@@ -326,5 +343,6 @@ export default function WorkbenchPage() {
         </main>
       </div>
     </div>
+    </>
   );
 }
