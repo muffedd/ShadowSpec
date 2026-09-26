@@ -1,5 +1,5 @@
 {
-  "run_id": "b2c3d4e5f6a1",
+  "run_id": "58725297e75c",
   "candidate": "bad",
   "verdict": "rejected",
   "characterization_passed": false,
@@ -7,11 +7,11 @@
   "failed_checks": [
     "lowercase code remains invalid with complete pricing result and audit row"
   ],
-  "source_sha256": "99164a7188f9d44db17d8f48e3ffa364cc9b410c286fc8a762c6f74685ad3d0a",
-  "baseline_sha256": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
-  "validator_sha256": "3fb01d393fb45161a017854c182a455d2a929fdf5b86d1b0cd9dd74f01f00e63",
+  "source_sha256": "bb87bac06fb61f7fe5b9d2f64cae41d6f4b792b36ebe4e86bb3a748d69db61a4",
+  "baseline_sha256": "8060c930143deb28599c84bfb3257324ff3de01620b509ada8b0028558ee3f3a",
+  "validator_sha256": "9e385986bbe81769feab826335ca264e3e41c88e7d5fd9efdc75528938a9e424",
   "runner_sha256": "d0c2d57807be7856dbbd26204a0244e527c25737495d9d5fda84447a0b39e498",
-  "output": "{\"checks\":[{\"kind\":\"characterization\",\"name\":\"uppercase code preserves complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"lowercase code remains invalid with complete pricing result and audit row\",\"passed\":false},{\"kind\":\"characterization\",\"name\":\"unknown code keeps complete full-price result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"negative subtotal raises validation error without audit write\",\"passed\":true},{\"kind\":\"acceptance\",\"name\":\"surrounding whitespace is accepted with complete pricing result and audit row\",\"passed\":true}],\"exit_code\":0}",
+  "output": "{\"checks\": [{\"kind\": \"characterization\", \"name\": \"uppercase code preserves complete pricing result and audit row\", \"passed\": true}, {\"kind\": \"characterization\", \"name\": \"lowercase code remains invalid with complete pricing result and audit row\", \"passed\": false}, {\"kind\": \"characterization\", \"name\": \"unknown code keeps complete full-price result and audit row\", \"passed\": true}, {\"kind\": \"characterization\", \"name\": \"negative subtotal raises validation error without audit write\", \"passed\": true}, {\"kind\": \"acceptance\", \"name\": \"surrounding whitespace is accepted with complete pricing result and audit row\", \"passed\": true}], \"exit_code\": 0}",
   "checks": [
     {
       "name": "uppercase code preserves complete pricing result and audit row",
@@ -39,8 +39,8 @@
       "passed": true
     }
   ],
-  "diff": "--- baseline.py\n+++ bad.py\n@@ -14,7 +14,7 @@\n     code = str(order.get(\"discount_code\", \"\"))\n-    discount = subtotal // 10 if code == \"SAVE10\" else 0\n+    discount = subtotal // 10 if code.strip().upper() == \"SAVE10\" else 0\n     total = subtotal - discount",
-  "description": "Trims whitespace AND normalises case — breaks the lowercase case-sensitivity check.",
+  "diff": "--- baseline.py\n+++ bad.py\n@@ -1,4 +1,4 @@\n-\"\"\"Audited legacy behavior before the maintenance request.\"\"\"\n+\"\"\"Plausible but over-broad candidate: trims and normalizes case.\"\"\"\n \n from __future__ import annotations\n \n@@ -12,7 +12,7 @@\n         raise ValueError(\"subtotal_cents must be non-negative\")\n \n     code = str(order.get(\"discount_code\", \"\"))\n-    discount = subtotal // 10 if code == \"SAVE10\" else 0\n+    discount = subtotal // 10 if code.strip().upper() == \"SAVE10\" else 0\n     total = subtotal - discount\n \n     with sqlite3.connect(db_path) as connection:\n@@ -25,9 +25,5 @@\n             (code, total),\n         )\n \n-    return {\n-        \"subtotal_cents\": subtotal,\n-        \"discount_cents\": discount,\n-        \"total_cents\": total,\n-    }\n+    return {\"subtotal_cents\": subtotal, \"discount_cents\": discount, \"total_cents\": total}\n \n",
+  "description": "Trims whitespace AND normalises case \u2014 breaks the lowercase case-sensitivity check.",
   "label": "bad",
   "reason": "Characterisation check fails: strip().upper() makes 'save10' equivalent to 'SAVE10', breaking case sensitivity."
 }
