@@ -76,7 +76,11 @@ artifact should connect this evidence to the behavior map, tests, and patch.
 
 ## Honest publication notes
 
-This guide intentionally contains no live demo URL or GitHub URL. Add public links
-only after they have been verified. The zero-key public demo performs deterministic
+Verified public links:
+
+- Live demo: https://shadowspec-demo.pages.dev
+- Repository: https://github.com/muffedd/ShadowSpec
+
+The zero-key public demo performs deterministic
 local analysis; it does not claim unavailable live IBM Bob inference. If a workflow
 is actually run in the IBM Bob IDE, place exported Bob sessions in `bob_sessions/`.
