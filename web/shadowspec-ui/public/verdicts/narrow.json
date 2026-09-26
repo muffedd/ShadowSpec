@@ -7,8 +7,8 @@
   "failed_checks": [],
   "source_sha256": "ef9ad8a069dbc9427702613c04fafb03fa6ed2dd2173f20b822dbaff0a02e307",
   "baseline_sha256": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
-  "validator_sha256": "deadbeef00000000000000000000000000000000000000000000000000000001",
-  "runner_sha256": "deadbeef00000000000000000000000000000000000000000000000000000002",
+  "validator_sha256": "3fb01d393fb45161a017854c182a455d2a929fdf5b86d1b0cd9dd74f01f00e63",
+  "runner_sha256": "d0c2d57807be7856dbbd26204a0244e527c25737495d9d5fda84447a0b39e498",
   "output": "{\"checks\":[{\"kind\":\"characterization\",\"name\":\"uppercase code preserves complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"lowercase code remains invalid with complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"unknown code keeps complete full-price result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"negative subtotal raises validation error without audit write\",\"passed\":true},{\"kind\":\"acceptance\",\"name\":\"surrounding whitespace is accepted with complete pricing result and audit row\",\"passed\":true}],\"exit_code\":0}",
   "checks": [
     {

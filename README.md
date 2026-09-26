@@ -92,10 +92,10 @@ use in an IBM Bob IDE. They are workflow guidance, not evidence that Bob perform
 this build. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md),
 and the role contracts under [`bob/`](bob/).
 
-No Bob runtime session or session export is included in the current repository.
-If the workflow is later run in IBM Bob, its redacted export belongs in
-[`bob_sessions/`](bob_sessions/). The public zero-key demo performs deterministic
-local analysis and does not impersonate live Bob inference.
+Bob session exports from the `bob-2.0-build-2026-09-25` build are in
+[`bob_sessions/`](bob_sessions/). These are redacted task-history exports from
+the IBM Bob IDE sessions that authored this branch. The public zero-key demo
+performs deterministic local analysis and does not impersonate live Bob inference.
 
 ## Evidence pack
 
