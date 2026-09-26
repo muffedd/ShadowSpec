@@ -2,125 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import design tokens from tokens.css (verbatim) */
+/* ShadowSpec UI - light monochromatic system ("clinical blueprint on frosted paper") */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/GeistVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMonoVF.woff") format("woff");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
-  /* ---------- Brand ---------- */
-  --pc-color-primary: #F94612;
-  --pc-color-primary-gradient-end: #FA683D;
-  --pc-gradient-primary: linear-gradient(180deg, #F94612, #FA683D);
-  --pc-color-primary-solid: #D93A0B;
-  --pc-color-primary-active: #B32E08;
-  --pc-color-primary-press: #9C2706;
-  --pc-color-primary-disabled: #ECAB97;
-  --pc-color-soft: #E7E4E0;
-  --pc-color-soft-hover: #DEDAD5;
-  --pc-color-soft-press: #D3CEC8;
-  --pc-color-primary-soft: #FFF4EF;
-  --pc-color-primary-soft-border: #FFC9B3;
-  --pc-gradient-destructive: linear-gradient(180deg, #E36323, #DF5A18);
-  --pc-color-destructive-solid: #C4380C;
-  --pc-color-focus-ring: #F94612;
-  --pc-color-on-primary: #FFFFFF;
-  --pc-color-button-outline: #D6D0CA;
-  --pc-color-bg-canvas: #FDFCFB;
-  --pc-color-bg-surface: #FFFFFF;
-  --pc-color-bg-subtle: #F8F6F4;
-  --pc-color-bg-hover: #F1EEEB;
-  --pc-color-border-subtle: #E6E2DE;
-  --pc-color-border: #D2CCC6;
-  --pc-color-border-strong: #ADA69F;
-  --pc-color-text-primary: #1E1A18;
-  --pc-color-text-secondary: #655E58;
-  --pc-color-text-disabled: #8A827B;
-  --pc-color-inverse: #312C29;
-  --pc-color-success: #17754A;
-  --pc-color-success-bg: #E6F4EC;
-  --pc-color-error: #BE123C;
-  --pc-color-error-bg: #FDECEF;
-  --pc-color-info: #1F5FAE;
-  --pc-color-info-bg: #E7F0FB;
-  --pc-font-sans: "Suisse Intl Trial", "Suisse Intl", "Satoshi", "Noto Sans Tamil", -apple-system, system-ui, sans-serif;
-  --pc-font-mono: Menlo, "JetBrains Mono", monospace;
+  --color-canvas: #f5f5f5;
+  --color-paper: #ffffff;
+  --color-surface-alt: #fafafa;
+  --color-ink: #0a0a0a;
+  --color-ink-soft: #171717;
+  --color-mid-gray: #737373;
+  --color-hairline: #e5e5e5;
+  --color-ember: #e7000b;
+  --font-geist: "Geist", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-geist-mono: "Geist Mono", Menlo, "JetBrains Mono", monospace;
+  --radius-cards: 24px;
+  --radius-small: 6px;
+  --radius-badges: 18px;
+  --radius-inputs: 18px;
+  --radius-nested: 10px;
+  --radius-buttons: 18px;
+  --shadow-card: 0 0 0 1px rgba(23,23,23,0.05), 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
   --pc-motion-press: 90ms;
-  --pc-motion-release: 220ms;
   --pc-motion-color: 150ms;
-  --pc-motion-hover: 240ms;
   --pc-ease-out: cubic-bezier(.23, 1, .32, 1);
   --pc-ease-spring: cubic-bezier(.34, 1.36, .64, 1);
-  --pc-scale-press: .96;
-  --pc-radius-btn: 10px;
-  --pc-radius-panel: 10px;
-  --pc-radius-chip: 5px;
-  --pc-fs-btn: 15px;
-  --pc-fs-base: 13px;
-  --pc-fs-sm: 12px;
-  --pc-fs-code: 11px;
-  --pc-space-2: 8px;
-  --pc-space-4: 16px;
-  --pc-space-6: 24px;
-  --pc-space-8: 32px;
-  --pc-rail-w: 280px;
 }
 
-/* Dark canvas variant — always on for workbench */
-html {
-  background-color: #0f0e0d;
-  color: #f0ece8;
-}
-
-body {
-  font-family: var(--pc-font-sans);
-  background-color: #0f0e0d;
-  color: #f0ece8;
+html, body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-geist);
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* Scrollbar for dark canvas */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #3d3830;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #5a5248;
-}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a3a3a3; }
 
-/* Code/mono text */
-code, pre, .mono {
-  font-family: var(--pc-font-mono);
-}
+code, pre, .mono { font-family: var(--font-geist-mono); }
 
-/* Button press micro-interaction */
 .btn-press {
-  transition:
-    transform var(--pc-motion-press) var(--pc-ease-out),
-    background-color var(--pc-motion-color) var(--pc-ease-out),
-    box-shadow var(--pc-motion-color) var(--pc-ease-out);
+  transition: transform var(--pc-motion-press) var(--pc-ease-out),
+    background-color var(--pc-motion-color) var(--pc-ease-out);
 }
-.btn-press:active {
-  transform: scale(var(--pc-scale-press));
-}
+.btn-press:active { transform: scale(0.97); }
 
-/* Diff line colors */
-.diff-add {
-  background: rgba(42, 184, 112, 0.10);
-  color: #6ee7a8;
-}
-.diff-remove {
-  background: rgba(240, 64, 64, 0.10);
-  color: #f87171;
-}
-.diff-header {
-  color: #9a9088;
-}
+/* Diff lines: achromatic, ember reserved for the removed/error line */
+.diff-add { background: #f5f5f5; color: #171717; }
+.diff-remove { background: #fdecec; color: #e7000b; }
+.diff-header { color: #737373; }

@@ -19,10 +19,10 @@ function VerdictBadge({ verdict }: { verdict: "accepted" | "rejected" | "error" 
           fontWeight: 600,
           letterSpacing: "0.04em",
           padding: "2px 6px",
-          borderRadius: "4px",
-          background: "rgba(42,184,112,0.15)",
-          color: "#2ab870",
-          border: "1px solid rgba(42,184,112,0.25)",
+          borderRadius: "18px",
+          background: "#f5f5f5",
+          color: "#171717",
+          border: "1px solid #e5e5e5",
           textTransform: "uppercase",
           lineHeight: 1,
         }}
@@ -39,10 +39,10 @@ function VerdictBadge({ verdict }: { verdict: "accepted" | "rejected" | "error" 
         fontWeight: 600,
         letterSpacing: "0.04em",
         padding: "2px 6px",
-        borderRadius: "4px",
-        background: "rgba(240,64,64,0.15)",
-        color: "#f04040",
-        border: "1px solid rgba(240,64,64,0.25)",
+        borderRadius: "18px",
+        background: "#fdecec",
+        color: "#e7000b",
+        border: "1px solid #e7000b",
         textTransform: "uppercase",
         lineHeight: 1,
       }}
@@ -62,8 +62,8 @@ export default function CandidateRail({
       style={{
         width: "var(--pc-rail-w)",
         minWidth: "var(--pc-rail-w)",
-        background: "#141210",
-        borderRight: "1px solid #2e2a26",
+        background: "#fafafa",
+        borderRight: "1px solid #e5e5e5",
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -74,7 +74,7 @@ export default function CandidateRail({
       <div
         style={{
           padding: "16px 16px 12px",
-          borderBottom: "1px solid #2e2a26",
+          borderBottom: "1px solid #e5e5e5",
         }}
       >
         <div
@@ -82,7 +82,7 @@ export default function CandidateRail({
             fontSize: "10px",
             fontWeight: 600,
             letterSpacing: "0.08em",
-            color: "#6b6358",
+            color: "#737373",
             textTransform: "uppercase",
             fontFamily: "Menlo, monospace",
           }}
@@ -92,7 +92,7 @@ export default function CandidateRail({
         <div
           style={{
             fontSize: "11px",
-            color: "#5a5248",
+            color: "#737373",
             marginTop: "4px",
             lineHeight: 1.4,
           }}
@@ -121,11 +121,11 @@ export default function CandidateRail({
                 padding: "10px 16px",
                 textAlign: "left",
                 background: isSelected
-                  ? "rgba(249,70,18,0.08)"
+                  ? "#f5f5f5"
                   : "transparent",
                 border: "none",
                 borderLeft: isSelected
-                  ? "2px solid #F94612"
+                  ? "2px solid #171717"
                   : "2px solid transparent",
                 cursor: "pointer",
                 transition: "background 150ms ease, border-color 150ms ease",
@@ -133,7 +133,7 @@ export default function CandidateRail({
               onMouseEnter={(e) => {
                 if (!isSelected) {
                   (e.currentTarget as HTMLButtonElement).style.background =
-                    "rgba(255,255,255,0.04)";
+                    "transparent";
                 }
               }}
               onMouseLeave={(e) => {
@@ -156,7 +156,7 @@ export default function CandidateRail({
                     fontFamily: "Menlo, monospace",
                     fontSize: "13px",
                     fontWeight: isSelected ? 600 : 400,
-                    color: isSelected ? "#f0ece8" : "#b0a89e",
+                    color: isSelected ? "#0a0a0a" : "#b0a89e",
                     letterSpacing: "-0.01em",
                   }}
                 >
@@ -167,7 +167,7 @@ export default function CandidateRail({
               <span
                 style={{
                   fontSize: "11px",
-                  color: "#5a5248",
+                  color: "#737373",
                   lineHeight: 1.4,
                 }}
               >
@@ -182,13 +182,13 @@ export default function CandidateRail({
       <div
         style={{
           padding: "12px 16px",
-          borderTop: "1px solid #2e2a26",
+          borderTop: "1px solid #e5e5e5",
         }}
       >
         <div
           style={{
             fontSize: "10px",
-            color: "#4a4440",
+            color: "#d4d4d4",
             fontFamily: "Menlo, monospace",
             lineHeight: 1.5,
           }}

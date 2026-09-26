@@ -17,7 +17,7 @@ function DiffView({ diff }: { diff: string }) {
       <div
         style={{
           padding: "20px",
-          color: "#5a5248",
+          color: "#737373",
           fontSize: "12px",
           fontFamily: "Menlo, monospace",
           textAlign: "center",
@@ -101,9 +101,9 @@ function HashesView({ verdict }: { verdict: VerdictData }) {
           key={h.label}
           style={{
             padding: "10px 12px",
-            background: "#141210",
+            background: "#fafafa",
             borderRadius: "6px",
-            border: "1px solid #2a2622",
+            border: "1px solid #fafafa",
           }}
         >
           <div
@@ -118,19 +118,19 @@ function HashesView({ verdict }: { verdict: VerdictData }) {
               style={{
                 fontFamily: "Menlo, monospace",
                 fontSize: "10px",
-                color: "#F94612",
+                color: "#171717",
                 letterSpacing: "0.02em",
               }}
             >
               {h.label}
             </code>
-            <span style={{ fontSize: "10px", color: "#5a5248" }}>{h.desc}</span>
+            <span style={{ fontSize: "10px", color: "#737373" }}>{h.desc}</span>
           </div>
           <code
             style={{
               fontFamily: "Menlo, monospace",
               fontSize: "10.5px",
-              color: "#9a9088",
+              color: "#737373",
               wordBreak: "break-all",
               display: "block",
               lineHeight: 1.5,
@@ -159,7 +159,7 @@ function RawView({ verdict }: { verdict: VerdictData }) {
         padding: "12px 16px",
         fontSize: "10.5px",
         fontFamily: "Menlo, monospace",
-        color: "#9a9088",
+        color: "#737373",
         lineHeight: 1.7,
         overflowX: "auto",
         whiteSpace: "pre-wrap",
@@ -254,8 +254,8 @@ export default function EvidenceDrawer({
   return (
     <div
       style={{
-        borderTop: "1px solid #2e2a26",
-        background: "#141210",
+        borderTop: "1px solid #e5e5e5",
+        background: "#fafafa",
         flexShrink: 0,
       }}
     >
@@ -272,7 +272,7 @@ export default function EvidenceDrawer({
           background: "transparent",
           border: "none",
           cursor: "pointer",
-          color: "#9a9088",
+          color: "#737373",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -300,7 +300,7 @@ export default function EvidenceDrawer({
               fontWeight: 600,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
-              color: "#6b6358",
+              color: "#737373",
             }}
           >
             Evidence
@@ -308,7 +308,7 @@ export default function EvidenceDrawer({
           <span
             style={{
               fontSize: "10px",
-              color: "#4a4440",
+              color: "#d4d4d4",
               fontFamily: "Menlo, monospace",
             }}
           >
@@ -328,22 +328,22 @@ export default function EvidenceDrawer({
             alignItems: "center",
             gap: "5px",
             padding: "4px 10px",
-            background: "#221f1c",
-            border: "1px solid #3d3830",
+            background: "#ffffff",
+            border: "1px solid #e5e5e5",
             borderRadius: "6px",
             cursor: "pointer",
-            color: "#d0cac4",
+            color: "#737373",
             fontSize: "11px",
             fontWeight: 500,
             transition: "background 150ms ease, border-color 150ms ease",
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#2e2a26";
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "#F94612";
+            (e.currentTarget as HTMLButtonElement).style.background = "#e5e5e5";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "#171717";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = "#221f1c";
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "#3d3830";
+            (e.currentTarget as HTMLButtonElement).style.background = "#ffffff";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "#e5e5e5";
           }}
         >
           <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -376,7 +376,7 @@ export default function EvidenceDrawer({
                   display: "flex",
                   gap: "2px",
                   padding: "0 16px",
-                  borderBottom: "1px solid #2e2a26",
+                  borderBottom: "1px solid #e5e5e5",
                 }}
               >
                 {tabs.map((t) => (
@@ -389,12 +389,12 @@ export default function EvidenceDrawer({
                       border: "none",
                       borderBottom:
                         tab === t.id
-                          ? "2px solid #F94612"
+                          ? "2px solid #171717"
                           : "2px solid transparent",
                       cursor: "pointer",
                       fontSize: "11px",
                       fontWeight: tab === t.id ? 600 : 400,
-                      color: tab === t.id ? "#f0ece8" : "#6b6358",
+                      color: tab === t.id ? "#0a0a0a" : "#737373",
                       transition: "color 150ms ease, border-color 150ms ease",
                       marginBottom: "-1px",
                     }}

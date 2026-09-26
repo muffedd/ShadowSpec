@@ -44,7 +44,7 @@ export default function WorkbenchPage() {
         display: "flex",
         flexDirection: "column",
         height: "100vh",
-        background: "#0f0e0d",
+        background: "#f5f5f5",
         overflow: "hidden",
       }}
     >
@@ -52,8 +52,8 @@ export default function WorkbenchPage() {
       <header
         style={{
           height: "44px",
-          background: "#141210",
-          borderBottom: "1px solid #2e2a26",
+          background: "#fafafa",
+          borderBottom: "1px solid #e5e5e5",
           display: "flex",
           alignItems: "center",
           padding: "0 20px",
@@ -64,7 +64,7 @@ export default function WorkbenchPage() {
       >
         {/* Logo mark */}
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <rect width="18" height="18" rx="4" fill="#F94612" />
+          <rect width="18" height="18" rx="4" fill="#171717" />
           <path
             d="M5 6h8M5 9h5M5 12h7"
             stroke="#fff"
@@ -78,7 +78,7 @@ export default function WorkbenchPage() {
             fontFamily: "'Suisse Intl Trial', 'Suisse Intl', Satoshi, sans-serif",
             fontSize: "14px",
             fontWeight: 600,
-            color: "#f0ece8",
+            color: "#0a0a0a",
             letterSpacing: "-0.01em",
           }}
         >
@@ -88,7 +88,7 @@ export default function WorkbenchPage() {
         <span
           style={{
             fontSize: "11px",
-            color: "#4a4440",
+            color: "#d4d4d4",
             fontFamily: "Menlo, monospace",
             marginLeft: "4px",
           }}
@@ -114,11 +114,11 @@ export default function WorkbenchPage() {
                 padding: "3px 10px",
                 borderRadius: "6px",
                 background: isAccepted
-                  ? "rgba(42,184,112,0.12)"
-                  : "rgba(240,64,64,0.12)",
+                  ? "#f5f5f5"
+                  : "#fdecec",
                 border: isAccepted
-                  ? "1px solid rgba(42,184,112,0.25)"
-                  : "1px solid rgba(240,64,64,0.25)",
+                  ? "1px solid rgba(23,23,23,0.25)"
+                  : "1px solid rgba(231,0,11,0.25)",
               }}
             >
               <div
@@ -126,7 +126,7 @@ export default function WorkbenchPage() {
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  background: isAccepted ? "#2ab870" : "#f04040",
+                  background: isAccepted ? "#171717" : "#e7000b",
                 }}
               />
               <code
@@ -134,7 +134,7 @@ export default function WorkbenchPage() {
                   fontFamily: "Menlo, monospace",
                   fontSize: "11px",
                   fontWeight: 600,
-                  color: isAccepted ? "#2ab870" : "#f04040",
+                  color: isAccepted ? "#171717" : "#e7000b",
                   letterSpacing: "0.05em",
                   textTransform: "uppercase",
                 }}
@@ -162,7 +162,7 @@ export default function WorkbenchPage() {
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            background: "#0f0e0d",
+            background: "#f5f5f5",
           }}
         >
           {/* Scrollable verdict area */}
@@ -190,7 +190,7 @@ export default function WorkbenchPage() {
                     fontSize: "10px",
                     fontWeight: 600,
                     letterSpacing: "0.08em",
-                    color: "#5a5248",
+                    color: "#737373",
                     textTransform: "uppercase",
                     fontFamily: "Menlo, monospace",
                     marginBottom: "4px",
@@ -202,7 +202,7 @@ export default function WorkbenchPage() {
                   style={{
                     fontSize: "16px",
                     fontWeight: 600,
-                    color: "#f0ece8",
+                    color: "#0a0a0a",
                     letterSpacing: "-0.02em",
                     margin: 0,
                   }}
@@ -224,11 +224,11 @@ export default function WorkbenchPage() {
                   alignItems: "center",
                   gap: "6px",
                   padding: "7px 14px",
-                  background: phase === "scanning" ? "#221f1c" : "#F94612",
+                  background: phase === "scanning" ? "#ffffff" : "#171717",
                   border: "none",
-                  borderRadius: "8px",
+                  borderRadius: "18px",
                   cursor: phase === "scanning" ? "not-allowed" : "pointer",
-                  color: phase === "scanning" ? "#5a5248" : "#fff",
+                  color: phase === "scanning" ? "#737373" : "#fff",
                   fontSize: "13px",
                   fontWeight: 600,
                   opacity: phase === "scanning" ? 0.5 : 1,
@@ -237,13 +237,13 @@ export default function WorkbenchPage() {
                 onMouseEnter={(e) => {
                   if (phase !== "scanning") {
                     (e.currentTarget as HTMLButtonElement).style.background =
-                      "#D93A0B";
+                      "#0a0a0a";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (phase !== "scanning") {
                     (e.currentTarget as HTMLButtonElement).style.background =
-                      "#F94612";
+                      "#171717";
                   }
                 }}
               >
@@ -286,7 +286,7 @@ export default function WorkbenchPage() {
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
-                      color: "#F94612",
+                      color: "#171717",
                       fontSize: "12px",
                       fontFamily: "Menlo, monospace",
                       letterSpacing: "0.04em",
@@ -299,7 +299,7 @@ export default function WorkbenchPage() {
                         width: "6px",
                         height: "6px",
                         borderRadius: "50%",
-                        background: "#F94612",
+                        background: "#171717",
                       }}
                     />
                     Running checks…

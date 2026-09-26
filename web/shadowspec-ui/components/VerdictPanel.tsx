@@ -18,7 +18,7 @@ function CheckRow({ check }: { check: CheckResult }) {
         alignItems: "flex-start",
         gap: "10px",
         padding: "8px 16px",
-        borderBottom: "1px solid #1e1b18",
+        borderBottom: "1px solid #e5e5e5",
       }}
     >
       {/* Status icon */}
@@ -33,18 +33,18 @@ function CheckRow({ check }: { check: CheckResult }) {
           flexShrink: 0,
           marginTop: "1px",
           background: check.passed
-            ? "rgba(42,184,112,0.18)"
-            : "rgba(240,64,64,0.18)",
+            ? "#f5f5f5"
+            : "#fdecec",
           border: check.passed
-            ? "1px solid rgba(42,184,112,0.4)"
-            : "1px solid rgba(240,64,64,0.4)",
+            ? "1px solid rgba(23,23,23,0.4)"
+            : "1px solid rgba(231,0,11,0.4)",
         }}
       >
         {check.passed ? (
           <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
             <path
               d="M1 3L3 5L7 1"
-              stroke="#2ab870"
+              stroke="#171717"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -54,7 +54,7 @@ function CheckRow({ check }: { check: CheckResult }) {
           <svg width="7" height="7" viewBox="0 0 7 7" fill="none">
             <path
               d="M1.5 1.5L5.5 5.5M5.5 1.5L1.5 5.5"
-              stroke="#f04040"
+              stroke="#e7000b"
               strokeWidth="1.5"
               strokeLinecap="round"
             />
@@ -67,7 +67,7 @@ function CheckRow({ check }: { check: CheckResult }) {
         <div
           style={{
             fontSize: "12.5px",
-            color: check.passed ? "#d0cac4" : "#f09090",
+            color: check.passed ? "#737373" : "#e7000b",
             lineHeight: 1.4,
             fontWeight: check.passed ? 400 : 500,
           }}
@@ -77,7 +77,7 @@ function CheckRow({ check }: { check: CheckResult }) {
         <div
           style={{
             fontSize: "10px",
-            color: "#5a5248",
+            color: "#737373",
             marginTop: "2px",
             fontFamily: "Menlo, monospace",
             letterSpacing: "0.03em",
@@ -106,9 +106,9 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
             ease: [0.34, 1.36, 0.64, 1], // --pc-ease-spring
           }}
           style={{
-            background: "#1a1815",
-            border: "1px solid #2e2a26",
-            borderRadius: "10px",
+            background: "#ffffff",
+            border: "1px solid #e5e5e5",
+            borderRadius: "18px",
             overflow: "hidden",
           }}
         >
@@ -116,10 +116,10 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
           <div
             style={{
               padding: "20px 20px 16px",
-              borderBottom: "1px solid #2e2a26",
+              borderBottom: "1px solid #e5e5e5",
               background: isAccepted
-                ? "rgba(42,184,112,0.06)"
-                : "rgba(240,64,64,0.06)",
+                ? "#fafafa"
+                : "#fef7f7",
             }}
           >
             {/* Verdict badge */}
@@ -139,11 +139,11 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   padding: "5px 12px",
                   borderRadius: "6px",
                   background: isAccepted
-                    ? "rgba(42,184,112,0.15)"
-                    : "rgba(240,64,64,0.15)",
+                    ? "#f5f5f5"
+                    : "#fdecec",
                   border: isAccepted
-                    ? "1px solid rgba(42,184,112,0.3)"
-                    : "1px solid rgba(240,64,64,0.3)",
+                    ? "1px solid rgba(23,23,23,0.3)"
+                    : "1px solid rgba(231,0,11,0.3)",
                 }}
               >
                 <div
@@ -151,10 +151,10 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                     width: "7px",
                     height: "7px",
                     borderRadius: "50%",
-                    background: isAccepted ? "#2ab870" : "#f04040",
+                    background: isAccepted ? "#171717" : "#e7000b",
                     boxShadow: isAccepted
-                      ? "0 0 6px rgba(42,184,112,0.6)"
-                      : "0 0 6px rgba(240,64,64,0.6)",
+                      ? "0 0 6px none"
+                      : "0 0 6px none",
                   }}
                 />
                 <span
@@ -163,7 +163,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                     fontSize: "13px",
                     fontWeight: 700,
                     letterSpacing: "0.06em",
-                    color: isAccepted ? "#2ab870" : "#f04040",
+                    color: isAccepted ? "#171717" : "#e7000b",
                     textTransform: "uppercase",
                   }}
                 >
@@ -176,11 +176,11 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                 style={{
                   fontFamily: "Menlo, monospace",
                   fontSize: "13px",
-                  color: "#9a9088",
-                  background: "#221f1c",
+                  color: "#737373",
+                  background: "#ffffff",
                   padding: "3px 8px",
                   borderRadius: "5px",
-                  border: "1px solid #2e2a26",
+                  border: "1px solid #e5e5e5",
                 }}
               >
                 {verdict.candidate}
@@ -199,7 +199,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                 <span
                   style={{
                     fontSize: "10px",
-                    color: "#5a5248",
+                    color: "#737373",
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
                     fontWeight: 600,
@@ -211,7 +211,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   style={{
                     fontFamily: "Menlo, monospace",
                     fontSize: "11px",
-                    color: "#7a7068",
+                    color: "#737373",
                   }}
                 >
                   {verdict.run_id}
@@ -221,7 +221,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                 <span
                   style={{
                     fontSize: "10px",
-                    color: "#5a5248",
+                    color: "#737373",
                     textTransform: "uppercase",
                     letterSpacing: "0.06em",
                     fontWeight: 600,
@@ -233,7 +233,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   style={{
                     fontFamily: "Menlo, monospace",
                     fontSize: "11px",
-                    color: "#7a7068",
+                    color: "#737373",
                   }}
                 >
                   {verdict.source_sha256.slice(0, 16)}…
@@ -260,7 +260,7 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
               display: "flex",
               gap: "8px",
               padding: "12px 16px",
-              borderBottom: "1px solid #2e2a26",
+              borderBottom: "1px solid #e5e5e5",
             }}
           >
             <div
@@ -270,11 +270,11 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                 gap: "5px",
                 padding: "4px 10px",
                 borderRadius: "5px",
-                background: "rgba(42,184,112,0.10)",
-                border: "1px solid rgba(42,184,112,0.20)",
+                background: "#f5f5f5",
+                border: "1px solid rgba(23,23,23,0.2)",
               }}
             >
-              <span style={{ fontSize: "11px", color: "#2ab870", fontWeight: 600 }}>
+              <span style={{ fontSize: "11px", color: "#171717", fontWeight: 600 }}>
                 {verdict.checks.filter((c) => c.passed).length}
               </span>
               <span style={{ fontSize: "10px", color: "#5a7a6a" }}>passed</span>
@@ -288,12 +288,12 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                 borderRadius: "5px",
                 background:
                   verdict.checks.filter((c) => !c.passed).length > 0
-                    ? "rgba(240,64,64,0.10)"
+                    ? "#fdecec"
                     : "rgba(255,255,255,0.04)",
                 border:
                   verdict.checks.filter((c) => !c.passed).length > 0
-                    ? "1px solid rgba(240,64,64,0.20)"
-                    : "1px solid #2e2a26",
+                    ? "1px solid rgba(231,0,11,0.2)"
+                    : "1px solid #e5e5e5",
               }}
             >
               <span
@@ -302,13 +302,13 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   fontWeight: 600,
                   color:
                     verdict.checks.filter((c) => !c.passed).length > 0
-                      ? "#f04040"
-                      : "#5a5248",
+                      ? "#e7000b"
+                      : "#737373",
                 }}
               >
                 {verdict.checks.filter((c) => !c.passed).length}
               </span>
-              <span style={{ fontSize: "10px", color: "#5a5248" }}>failed</span>
+              <span style={{ fontSize: "10px", color: "#737373" }}>failed</span>
             </div>
 
             {/* Characterization / Acceptance breakdown */}
@@ -326,12 +326,12 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   padding: "3px 8px",
                   borderRadius: "4px",
                   background: verdict.characterization_passed
-                    ? "rgba(42,184,112,0.08)"
-                    : "rgba(240,64,64,0.08)",
-                  color: verdict.characterization_passed ? "#2ab870" : "#f04040",
+                    ? "#fafafa"
+                    : "#fdecec",
+                  color: verdict.characterization_passed ? "#171717" : "#e7000b",
                   border: verdict.characterization_passed
-                    ? "1px solid rgba(42,184,112,0.2)"
-                    : "1px solid rgba(240,64,64,0.2)",
+                    ? "1px solid rgba(23,23,23,0.2)"
+                    : "1px solid rgba(231,0,11,0.2)",
                   fontFamily: "Menlo, monospace",
                   letterSpacing: "0.02em",
                 }}
@@ -344,12 +344,12 @@ export default function VerdictPanel({ verdict, visible }: VerdictPanelProps) {
                   padding: "3px 8px",
                   borderRadius: "4px",
                   background: verdict.acceptance_passed
-                    ? "rgba(42,184,112,0.08)"
-                    : "rgba(240,64,64,0.08)",
-                  color: verdict.acceptance_passed ? "#2ab870" : "#f04040",
+                    ? "#fafafa"
+                    : "#fdecec",
+                  color: verdict.acceptance_passed ? "#171717" : "#e7000b",
                   border: verdict.acceptance_passed
-                    ? "1px solid rgba(42,184,112,0.2)"
-                    : "1px solid rgba(240,64,64,0.2)",
+                    ? "1px solid rgba(23,23,23,0.2)"
+                    : "1px solid rgba(231,0,11,0.2)",
                   fontFamily: "Menlo, monospace",
                   letterSpacing: "0.02em",
                 }}
