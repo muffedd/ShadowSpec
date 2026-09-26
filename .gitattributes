@@ -1,0 +1,9 @@
+# Force LF line endings for all text files checked into the repo.
+# This ensures that SHA-256 integrity hashes in validator.py are computed
+# against the same bytes on every platform (Windows, macOS, Linux CI).
+* text=auto eol=lf
+
+# Fixture variants are audited; their byte content is pinned by SHA-256
+# in src/shadowspec/validator.py.  Keeping them at LF ensures the manifest
+# stays valid on every checkout (LF checkout = LF bytes on disk = same hash).
+fixtures/**/*.py text eol=lf

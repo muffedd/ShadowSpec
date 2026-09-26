@@ -48,10 +48,17 @@ ALLOWED_CANDIDATES = frozenset({"baseline", "bad", "narrow"})
 # SHA-256 of the server-owned, audited fixture variants.
 # These are the integrity boundary: if the file on disk does not match,
 # execution is refused before any subprocess is spawned.
+#
+# Line-ending note: all hashes are computed against LF-only bytes.
+# .gitattributes pins fixtures/**/*.py to eol=lf so every checkout
+# (Windows CRLF, Linux LF) produces identical on-disk bytes and therefore
+# an identical hash.  If you regenerate these hashes, always use the
+# LF-normalised content (strip \r before hashing, or rely on a clean
+# LF checkout).
 AUDITED_VARIANT_SHA256 = {
-    "baseline.py": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
-    "bad.py": "99164a7188f9d44db17d8f48e3ffa364cc9b410c286fc8a762c6f74685ad3d0a",
-    "narrow.py": "ef9ad8a069dbc9427702613c04fafb03fa6ed2dd2173f20b822dbaff0a02e307",
+    "baseline.py": "8060c930143deb28599c84bfb3257324ff3de01620b509ada8b0028558ee3f3a",
+    "bad.py": "bb87bac06fb61f7fe5b9d2f64cae41d6f4b792b36ebe4e86bb3a748d69db61a4",
+    "narrow.py": "0dcf67131a0282d30a6cfa18bbae8be7fdbc0bd6b5e2dd16c50c37ba5a98d5b0",
 }
 
 OUTPUT_LIMIT = 4000
