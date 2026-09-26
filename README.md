@@ -135,8 +135,8 @@ Verified reference baseline: **64 tests passed, 89.29% coverage**. CI enforces a
 
 ## Demo and submission
 
-- Live demo: `PUBLIC_URL_PENDING`
-- GitHub repository: `GITHUB_URL_PENDING`
+- Live demo: https://shadowspec-demo.pages.dev
+- GitHub repository: https://github.com/muffedd/ShadowSpec
 - Demo video: `VIDEO_URL_PENDING`
 
 ## Submission materials

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 // Minimal achromatic running state: white card, hairline border, a thin
 // sweeping progress line in ink. No glow, no glyph grid, no chromatic accents.
 export default function ScanAnimation({
-  label = "Running checks…",
+  label = "Replaying precomputed verdict…",
   running = true,
   onComplete,
 }: {

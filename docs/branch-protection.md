@@ -4,14 +4,34 @@ This document explains how to configure GitHub branch protection so that the
 `ShadowSpec behavior gate` CI check **must pass before any pull request can be
 merged to `main`**.
 
-Once branch protection is in place:
+## What the workflow actually proves
 
-* A PR that introduces `strip().upper()` (or any other change that breaks a
-  preserved characterization check) **cannot be merged** — the required status
-  check blocks the Merge button.
-* A PR with the correct `strip()`-only change (or any other patch that passes
-  all characterization checks and the acceptance check) clears the gate and can
-  be merged normally.
+The `behavior-gate` workflow runs two controls on every PR to `main`:
+
+1. **Negative control** — always expected to be green. Confirms the engine
+   correctly rejects the known-bad `strip().upper()` candidate.
+2. **Positive control + characterization gate** — runs the audited `narrow`
+   fixture and fails if `characterization_passed` is `False`.
+
+It also reports the list of files changed in the PR so reviewers can see what
+is in scope.
+
+**What is and is not proven:**
+
+- ✅ The gate mechanism is live and will reject a regression to the audited narrow fixture.
+- ✅ Any PR that breaks `characterization_passed` on the narrow fixture will fail CI.
+- ❌ The workflow does not automatically block an arbitrary bad PR from an external
+  contributor unless branch protection is enabled and the status check is required.
+  The `strip().upper()` negative control is always green because it proves the gate
+  can detect that class of regression — it does not block the merge on its own.
+
+Once branch protection is configured:
+
+* Any PR that changes the gate-protected fixture in a way that breaks
+  `characterization_passed` **cannot be merged** — the required status check
+  blocks the Merge button.
+* A PR that passes all characterization checks and the acceptance check clears
+  the gate and can be merged normally.
 
 ---
 
@@ -110,25 +130,35 @@ gh api repos/muffedd/ShadowSpec/branches/main/protection \
 
 ## What the gate checks
 
-The `behavior-gate` job runs two controls on every PR:
+The `behavior-gate` job runs three steps on every PR:
 
-### Negative control — bad patch
+### Step 1 — Changed files report
+Derives the list of files changed in the PR from the git diff between the PR
+head and the base branch merge-base. This is reported in the CI log so reviewers
+can verify what is in scope.
+
+### Step 2 — Negative control (always expected green)
 Runs `shadowspec.cli run bad` and asserts:
 - `characterization_passed == False`
 - `acceptance_passed == True`
 - `verdict == "rejected"`
 
-This step **always passes** in CI (it confirms the gate can detect a bad patch).
+This step **always passes** in CI. Its purpose is to confirm the gate mechanism
+is alive and can detect the known regression. It is not a gate on the PR itself.
 
-### Positive control — narrow patch
+### Step 3 — Positive control — narrow patch
 Runs `shadowspec.cli run narrow` and asserts:
 - `characterization_passed == True`
 - `acceptance_passed == True`
 - `verdict == "accepted"`
 
-### Characterization gate (the blocking step)
+### Step 4 — Characterization gate (the blocking step)
 Runs `shadowspec.cli run narrow` and exits `1` if `characterization_passed` is
 `False`. **This is the step that branch protection should require to be green.**
+
+> **Scope note:** This gate proves the audited `narrow` fixture passes. It does
+> not automatically evaluate arbitrary contributor patches. To block bad merges,
+> branch protection must be enabled as described above.
 
 ---
 

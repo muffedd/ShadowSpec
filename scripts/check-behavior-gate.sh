@@ -53,26 +53,26 @@ echo ""
 # CLI exits 2 for rejected, so capture output without aborting on non-zero.
 BAD_JSON=$($PYTHON -m shadowspec.cli run bad --format json 2>/dev/null || true)
 
-echo "$BAD_JSON" | $PYTHON - <<'EOF'
+echo "$BAD_JSON" | $PYTHON -c '
 import json, sys
 data  = json.load(sys.stdin)
 v     = data["validation"]
-print(f"  verdict              : {v['verdict']}")
-print(f"  characterization_passed : {v['characterization_passed']}")
-print(f"  acceptance_passed    : {v['acceptance_passed']}")
-print(f"  failed_checks        : {v['failed_checks']}")
-EOF
+print(f"  verdict              : {v[\"verdict\"]}")
+print(f"  characterization_passed : {v[\"characterization_passed\"]}")
+print(f"  acceptance_passed    : {v[\"acceptance_passed\"]}")
+print(f"  failed_checks        : {v[\"failed_checks\"]}")
+'
 
-echo "$BAD_JSON" | $PYTHON - <<'EOF' || fail "Negative control: expected bad patch to be rejected"
+echo "$BAD_JSON" | $PYTHON -c '
 import json, sys
 data = json.load(sys.stdin)
 v    = data["validation"]
-assert v["verdict"]                == "rejected", f"verdict={v['verdict']!r}"
+assert v["verdict"]                == "rejected", f"verdict={v[\"verdict\"]!r}"
 assert v["characterization_passed"] is False,     "characterization_passed should be False"
 assert v["acceptance_passed"]       is True,      "acceptance_passed should be True"
 lowcase_check = "lowercase code remains invalid with complete pricing result and audit row"
-assert lowcase_check in v["failed_checks"], f"Expected '{lowcase_check}' in failed_checks"
-EOF
+assert lowcase_check in v["failed_checks"], f"Expected \"{lowcase_check}\" in failed_checks"
+' || fail "Negative control: expected bad patch to be rejected"
 
 echo ""
 pass "✓ GATE BITES: bad patch correctly REJECTED (characterization failure surfaced)"
@@ -86,25 +86,25 @@ echo ""
 
 NARROW_JSON=$($PYTHON -m shadowspec.cli run narrow --format json)
 
-echo "$NARROW_JSON" | $PYTHON - <<'EOF'
+echo "$NARROW_JSON" | $PYTHON -c '
 import json, sys
 data  = json.load(sys.stdin)
 v     = data["validation"]
-print(f"  verdict              : {v['verdict']}")
-print(f"  characterization_passed : {v['characterization_passed']}")
-print(f"  acceptance_passed    : {v['acceptance_passed']}")
-print(f"  failed_checks        : {v['failed_checks']}")
-EOF
+print(f"  verdict              : {v[\"verdict\"]}")
+print(f"  characterization_passed : {v[\"characterization_passed\"]}")
+print(f"  acceptance_passed    : {v[\"acceptance_passed\"]}")
+print(f"  failed_checks        : {v[\"failed_checks\"]}")
+'
 
-echo "$NARROW_JSON" | $PYTHON - <<'EOF' || fail "Positive control: expected narrow patch to be accepted"
+echo "$NARROW_JSON" | $PYTHON -c '
 import json, sys
 data = json.load(sys.stdin)
 v    = data["validation"]
-assert v["verdict"]                == "accepted", f"verdict={v['verdict']!r}"
+assert v["verdict"]                == "accepted", f"verdict={v[\"verdict\"]!r}"
 assert v["characterization_passed"] is True,      "characterization_passed should be True"
 assert v["acceptance_passed"]       is True,      "acceptance_passed should be True"
-assert v["failed_checks"]           == [],         f"expected no failed checks, got {v['failed_checks']}"
-EOF
+assert v["failed_checks"]           == [],         f"expected no failed checks, got {v[\"failed_checks\"]}"
+' || fail "Positive control: expected narrow patch to be accepted"
 
 echo ""
 pass "✓ GATE PASSES: narrow patch correctly ACCEPTED"

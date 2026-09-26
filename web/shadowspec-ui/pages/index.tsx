@@ -211,7 +211,7 @@ export default function WorkbenchPage() {
                 </h1>
               </div>
 
-              {/* Re-run button */}
+              {/* Replay verdict button — replays the animation over the precomputed build-time verdict */}
               <button
                 onClick={() => {
                   setPhase("scanning");
@@ -256,7 +256,7 @@ export default function WorkbenchPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                {phase === "scanning" ? "Scanning…" : "Re-run"}
+                {phase === "scanning" ? "Replaying…" : "Replay verdict"}
               </button>
             </div>
 
@@ -302,7 +302,7 @@ export default function WorkbenchPage() {
                         background: "#171717",
                       }}
                     />
-                    Running checks…
+                    Replaying precomputed verdict…
                   </div>
                 </motion.div>
               )}

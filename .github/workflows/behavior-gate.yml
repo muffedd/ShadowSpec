@@ -1,22 +1,34 @@
 name: Behavior gate
 
-# Blocks merges whose patch changes preserved characterization behavior.
+# What this workflow proves (and does not prove)
+# ─────────────────────────────────────────────────────────────────────────────
+# PROVEN:
+#   1. The ShadowSpec engine correctly rejects the known-bad candidate
+#      (strip().upper()) — characterization_passed=False, verdict=rejected.
+#      This negative-control job is always expected to be green; it proves the
+#      gate mechanism is live and can detect the class of regression it targets.
+#
+#   2. The changed files in the PR are reported and surfaced in the gate step.
+#      If the PR touches the fixtures, validator, or runner, the characterization
+#      gate re-runs both controls and fails the workflow on any regression.
+#
+# NOT PROVEN:
+#   - The gate does NOT evaluate arbitrary bad PRs submitted by contributors
+#     automatically. Branch protection must be enabled (see docs/branch-protection.md)
+#     and a required status check configured for "ShadowSpec behavior gate" so
+#     that this workflow runs on every PR to main.
+#   - The gate does NOT sandbox or execute reviewer-supplied patches. It only
+#     runs the three audited server-owned fixture variants.
+# ─────────────────────────────────────────────────────────────────────────────
 #
 # Every pull request to main must pass TWO independent checks:
 #
 #   1. test        — full pytest suite + coverage (existing gate, unchanged)
 #   2. behavior-gate — ShadowSpec differential check:
-#                      • runs the narrow candidate (the audited "correct" patch)
-#                      • asserts characterization_passed == true
-#                      • asserts acceptance_passed == true
-#                      • fails the workflow if either is false
-#
-# The two jobs are independent so a coverage failure and a behavior failure
-# surface as separate red checks in the PR status list.
-#
-# Separation rule enforced here:
-#   strip().upper()  → characterization_passed=false → gate FAILS
-#   strip() only     → characterization_passed=true  → gate PASSES
+#                      • negative control: bad patch is REJECTED (always green)
+#                      • positive control: narrow patch is ACCEPTED
+#                      • characterization gate: fails if narrow regresses
+#                      • changed-files report: lists which files this PR touches
 #
 # See docs/branch-protection.md for how to make this check required.
 
@@ -26,6 +38,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   # ── 1. Full test suite ────────────────────────────────────────────────────
@@ -61,6 +74,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Fetch enough history to diff against the base branch
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -71,9 +87,22 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
 
+      # ── Derive changed files from the PR diff ─────────────────────────────
+      # Compares this branch against the merge-base of the target branch so
+      # that only files actually changed in the PR are listed — not all files
+      # that differ between head and origin/main since they diverged.
+      - name: "Report changed files in this PR"
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          echo "=== Files changed in this PR ==="
+          git diff --name-only "$BASE" "$HEAD" || git diff --name-only origin/${{ github.base_ref }}...HEAD
+          echo "================================="
+
       # ── Negative control: bad patch must be REJECTED ──────────────────────
-      # This step is expected to exit non-zero (rejected), so we capture the
-      # JSON and assert the verdict explicitly rather than relying on exit code.
+      # This step is ALWAYS expected to pass (exit 0). It confirms the gate
+      # mechanism can detect a known regression. It is NOT a gate on the PR.
       - name: "[negative control] bad patch is REJECTED"
         run: |
           set -euo pipefail
@@ -128,8 +157,9 @@ jobs:
       # It runs the narrow (audited correct) candidate and fails hard if
       # characterization_passed is not true.
       #
-      # In a real PR workflow the checked-in fixture is the audited baseline;
-      # this step proves the gate mechanism is live and biting.
+      # What this step proves: the gate mechanism is live on the audited
+      # narrow fixture. It does NOT prove that arbitrary PRs are blocked —
+      # that requires branch protection (see docs/branch-protection.md).
       - name: "Characterization gate (must be green to merge)"
         run: |
           set -euo pipefail
