@@ -1,0 +1,46 @@
+{
+  "run_id": "b2c3d4e5f6a1",
+  "candidate": "bad",
+  "verdict": "rejected",
+  "characterization_passed": false,
+  "acceptance_passed": true,
+  "failed_checks": [
+    "lowercase code remains invalid with complete pricing result and audit row"
+  ],
+  "source_sha256": "99164a7188f9d44db17d8f48e3ffa364cc9b410c286fc8a762c6f74685ad3d0a",
+  "baseline_sha256": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
+  "validator_sha256": "deadbeef00000000000000000000000000000000000000000000000000000001",
+  "runner_sha256": "deadbeef00000000000000000000000000000000000000000000000000000002",
+  "output": "{\"checks\":[{\"kind\":\"characterization\",\"name\":\"uppercase code preserves complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"lowercase code remains invalid with complete pricing result and audit row\",\"passed\":false},{\"kind\":\"characterization\",\"name\":\"unknown code keeps complete full-price result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"negative subtotal raises validation error without audit write\",\"passed\":true},{\"kind\":\"acceptance\",\"name\":\"surrounding whitespace is accepted with complete pricing result and audit row\",\"passed\":true}],\"exit_code\":0}",
+  "checks": [
+    {
+      "name": "uppercase code preserves complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "lowercase code remains invalid with complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": false
+    },
+    {
+      "name": "unknown code keeps complete full-price result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "negative subtotal raises validation error without audit write",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "surrounding whitespace is accepted with complete pricing result and audit row",
+      "kind": "acceptance",
+      "passed": true
+    }
+  ],
+  "diff": "--- baseline.py\n+++ bad.py\n@@ -14,7 +14,7 @@\n     code = str(order.get(\"discount_code\", \"\"))\n-    discount = subtotal // 10 if code == \"SAVE10\" else 0\n+    discount = subtotal // 10 if code.strip().upper() == \"SAVE10\" else 0\n     total = subtotal - discount",
+  "description": "Trims whitespace AND normalises case — breaks the lowercase case-sensitivity check.",
+  "label": "bad",
+  "reason": "Characterisation check fails: strip().upper() makes 'save10' equivalent to 'SAVE10', breaking case sensitivity."
+}

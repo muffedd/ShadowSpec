@@ -1,0 +1,46 @@
+{
+  "run_id": "a1b2c3d4e5f6",
+  "candidate": "baseline",
+  "verdict": "rejected",
+  "characterization_passed": true,
+  "acceptance_passed": false,
+  "failed_checks": [
+    "surrounding whitespace is accepted with complete pricing result and audit row"
+  ],
+  "source_sha256": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
+  "baseline_sha256": "7f14c9b5e8d821b5c00fd2ab67a6c97ffb40a22c2f5b30a5d2633a1fa0c1e95f",
+  "validator_sha256": "deadbeef00000000000000000000000000000000000000000000000000000001",
+  "runner_sha256": "deadbeef00000000000000000000000000000000000000000000000000000002",
+  "output": "{\"checks\":[{\"kind\":\"characterization\",\"name\":\"uppercase code preserves complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"lowercase code remains invalid with complete pricing result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"unknown code keeps complete full-price result and audit row\",\"passed\":true},{\"kind\":\"characterization\",\"name\":\"negative subtotal raises validation error without audit write\",\"passed\":true},{\"kind\":\"acceptance\",\"name\":\"surrounding whitespace is accepted with complete pricing result and audit row\",\"passed\":false}],\"exit_code\":0}",
+  "checks": [
+    {
+      "name": "uppercase code preserves complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "lowercase code remains invalid with complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "unknown code keeps complete full-price result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "negative subtotal raises validation error without audit write",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "surrounding whitespace is accepted with complete pricing result and audit row",
+      "kind": "acceptance",
+      "passed": false
+    }
+  ],
+  "diff": "",
+  "description": "Unchanged legacy implementation — does not trim whitespace from discount codes.",
+  "label": "baseline",
+  "reason": "Acceptance check fails: surrounding whitespace is not trimmed."
+}
