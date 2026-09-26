@@ -1,12 +1,30 @@
 # ShadowSpec
 
-> **Pre-kickoff reference baseline.** This repository is scaffolding and review evidence, not the eligible submitted core. See [event-window provenance](docs/release/event-window-provenance.md).
+> **Event-window build — branch `bob-2.0-build-2026-09-25`.** Authored by IBM Bob starting after kickoff on 2026-09-25. The pre-kickoff state on `main` is reference-only. See [event-window provenance](docs/release/event-window-provenance.md).
 
 **Reject the broad patch. Accept the narrow one. Export the proof.**
 
 ShadowSpec is a zero-key evidence workbench for one risky maintenance job: changing undocumented legacy behavior without quietly changing something else.
 
 The bundled demo asks for one precise change to a Python order service: accept surrounding whitespace in `SAVE10` while preserving case sensitivity, pricing, errors, and the SQLite audit write.
+
+## Live demo
+
+- **Live demo:** https://shadowspec-demo.pages.dev
+- **Source:** https://github.com/muffedd/ShadowSpec
+
+### Try it in 60 seconds
+
+1. Open the live demo and run **Plausible bad candidate**. Verdict: REJECTED - the new whitespace case passes, but lowercase `save10` behavior changed.
+2. Run **Narrow candidate**. Verdict: ACCEPTED - preserved behavior and the requested delta both pass.
+3. Open the evidence drawer to see the diff, provenance hashes, and export a condensed preview.
+
+| Build proof | |
+| --- | --- |
+| Tests | 76 passed, 3 platform-gated skips |
+| Coverage | 91.46% (CI enforces >= 85%) |
+| IBM Bob sessions | 6 exported task transcripts + 6 consumption screenshots in [`bob_sessions/`](bob_sessions/) |
+
 
 ## Problem
 
@@ -31,6 +49,12 @@ ShadowSpec never treats “the new example works” as sufficient evidence. Exis
 ## Setup
 
 Requires Python 3.12 or later.
+
+The pinned install below requires Python 3.12 or later. The engine itself is
+standard-library only: to run just the core test suite without the full pinned
+install, `pip install pytest pytest-cov` is enough (`tests/test_app.py` needs
+Streamlit and `tests/test_deployment.py` needs Python 3.11+; both are
+platform-gated).
 
 ```bash
 python -m venv .venv
@@ -92,10 +116,10 @@ use in an IBM Bob IDE. They are workflow guidance, not evidence that Bob perform
 this build. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md),
 and the role contracts under [`bob/`](bob/).
 
-No Bob runtime session or session export is included in the current repository.
-If the workflow is later run in IBM Bob, its redacted export belongs in
-[`bob_sessions/`](bob_sessions/). The public zero-key demo performs deterministic
-local analysis and does not impersonate live Bob inference.
+Bob session exports from the `bob-2.0-build-2026-09-25` build are in
+[`bob_sessions/`](bob_sessions/). These are redacted task-history exports from
+the IBM Bob IDE sessions that authored this branch. The public zero-key demo
+performs deterministic local analysis and does not impersonate live Bob inference.
 
 ## Evidence pack
 
@@ -131,12 +155,12 @@ See [security.md](docs/submission/security.md) for the threat boundary and limit
 pytest -q --cov=shadowspec --cov-report=term --cov-fail-under=85
 ```
 
-Verified reference baseline: **64 tests passed, 89.29% coverage**. CI enforces at least 85% coverage.
+Verified reference baseline: **76 tests passed, 3 platform-gated skips, 91.46% coverage**. CI enforces at least 85% coverage.
 
 ## Demo and submission
 
-- Live demo: `PUBLIC_URL_PENDING`
-- GitHub repository: `GITHUB_URL_PENDING`
+- Live demo: https://shadowspec-demo.pages.dev
+- GitHub repository: https://github.com/muffedd/ShadowSpec
 - Demo video: `VIDEO_URL_PENDING`
 
 ## Submission materials

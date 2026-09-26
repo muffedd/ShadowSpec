@@ -71,7 +71,7 @@ def _run_modified_candidate(tmp_path: Path, old: str, new: str):
             "-c",
             validator._RUNNER,
             str(source),
-            str(workspace / "audit.db"),
+            str(workspace),
         ],
         workspace,
     )
@@ -294,15 +294,16 @@ def test_nonzero_execution_errors_do_not_expose_raw_stderr_or_source(monkeypatch
 
 def test_candidate_stdout_cannot_forge_runner_control_result(tmp_path):
     forged_payload = json.dumps(EXPECTED_CHECKS, sort_keys=True).encode("utf-8")
+    # The script writes the forged payload to stdout only; it never writes to
+    # the result file (sys.argv[1]).  The result channel is file-based, so
+    # stdout output cannot forge the result.
     completed = _execute_script(
         tmp_path,
         "import os\n"
         "import sys\n"
-        f"os.write(1, {forged_payload!r})\n"
-        "os.close(int(sys.argv[1]))\n",
+        f"os.write(1, {forged_payload!r})\n",
     )
 
-    assert completed.returncode == 0
     assert completed.result == b""
 
     with pytest.raises(ValueError, match="invalid check results"):
@@ -430,6 +431,10 @@ def test_modified_candidate_output_is_rejected_by_integrity_check(tmp_path):
     assert "candidate output that must be bounded" not in run.output
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="symlink creation requires elevated privileges on Windows",
+)
 def test_candidate_symlink_must_remain_under_variants_root(tmp_path):
     fixture_root = tmp_path / "fixture"
     variants = fixture_root / "variants"

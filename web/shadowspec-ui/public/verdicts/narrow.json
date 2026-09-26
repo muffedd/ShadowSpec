@@ -1,0 +1,44 @@
+{
+  "run_id": "cfa498a8ef10",
+  "candidate": "narrow",
+  "verdict": "accepted",
+  "characterization_passed": true,
+  "acceptance_passed": true,
+  "failed_checks": [],
+  "source_sha256": "0dcf67131a0282d30a6cfa18bbae8be7fdbc0bd6b5e2dd16c50c37ba5a98d5b0",
+  "baseline_sha256": "8060c930143deb28599c84bfb3257324ff3de01620b509ada8b0028558ee3f3a",
+  "validator_sha256": "9e385986bbe81769feab826335ca264e3e41c88e7d5fd9efdc75528938a9e424",
+  "runner_sha256": "d0c2d57807be7856dbbd26204a0244e527c25737495d9d5fda84447a0b39e498",
+  "output": "{\"checks\": [{\"kind\": \"characterization\", \"name\": \"uppercase code preserves complete pricing result and audit row\", \"passed\": true}, {\"kind\": \"characterization\", \"name\": \"lowercase code remains invalid with complete pricing result and audit row\", \"passed\": true}, {\"kind\": \"characterization\", \"name\": \"unknown code keeps complete full-price result and audit row\", \"passed\": true}, {\"kind\": \"characterization\", \"name\": \"negative subtotal raises validation error without audit write\", \"passed\": true}, {\"kind\": \"acceptance\", \"name\": \"surrounding whitespace is accepted with complete pricing result and audit row\", \"passed\": true}], \"exit_code\": 0}",
+  "checks": [
+    {
+      "name": "uppercase code preserves complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "lowercase code remains invalid with complete pricing result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "unknown code keeps complete full-price result and audit row",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "negative subtotal raises validation error without audit write",
+      "kind": "characterization",
+      "passed": true
+    },
+    {
+      "name": "surrounding whitespace is accepted with complete pricing result and audit row",
+      "kind": "acceptance",
+      "passed": true
+    }
+  ],
+  "diff": "--- baseline.py\n+++ narrow.py\n@@ -12,7 +12,7 @@\n         raise ValueError(\"subtotal_cents must be non-negative\")\n \n     code = str(order.get(\"discount_code\", \"\"))\n-    discount = subtotal // 10 if code == \"SAVE10\" else 0\n+    discount = subtotal // 10 if code.strip() == \"SAVE10\" else 0\n     total = subtotal - discount\n \n     with sqlite3.connect(db_path) as connection:\n@@ -30,4 +30,3 @@\n         \"discount_cents\": discount,\n         \"total_cents\": total,\n     }\n-\n",
+  "description": "Trims surrounding whitespace only \u2014 preserves case sensitivity. The correct fix.",
+  "label": "narrow",
+  "reason": "All characterisation checks pass and the acceptance check passes: strip() only."
+}
