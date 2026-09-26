@@ -22,6 +22,10 @@ The user-defined eligibility boundary is **Friday, 25 September 2026 at 8:30 PM 
 
 `4b72a298294dc80ad7e83d18a7f2eeb0ec7bb413` (pre-kickoff reference)
 
+### Author
+
+IBM Bob (IBM Bob IDE, agent mode) — branch `bob-2.0-build-2026-09-25`, starting after kickoff on **2026-09-25**. The pre-kickoff state on `main` (commit `4b72a298294dc80ad7e83d18a7f2eeb0ec7bb413`) is **reference-only** and is not the eligible submitted core.
+
 ### Files authored or materially rebuilt during the window
 
 | File | Change summary |
@@ -29,6 +33,9 @@ The user-defined eligibility boundary is **Friday, 25 September 2026 at 8:30 PM 
 | `src/shadowspec/validator.py` | Full rebuild: correct audited fixture SHA-256 manifest; cross-platform subprocess execution model (file-based result channel instead of `pass_fds`); polling wait loop with kill-on-output-limit; explicit SQLite connection close in runner to avoid Windows file-lock on per-case DB files; `_terminate_process` helper; separation rule enforced (strip().upper() → rejected, strip() → accepted). |
 | `tests/test_validator.py` | Updated `_run_modified_candidate` to pass workspace dir instead of `audit.db` path; updated stdout-forge test to use file-based result model; added Windows symlink skip marker. |
 | `tests/test_analyzer.py` | Added Windows symlink skip marker. |
+| `web/shadowspec-ui/next.config.mjs` | Added `output: 'export'` for static export to Vercel / GitHub Pages. |
+| `web/shadowspec-ui/pages/api/hello.ts` | Deleted — API routes are incompatible with static export. |
+| `web/shadowspec-ui/README.md` | Replaced scaffold README with build, deploy, and live-demo instructions. |
 | `docs/release/event-window-provenance.md` | This record. |
 
 ### Test evidence

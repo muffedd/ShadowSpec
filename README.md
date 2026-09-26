@@ -1,6 +1,6 @@
 # ShadowSpec
 
-> **Pre-kickoff reference baseline.** This repository is scaffolding and review evidence, not the eligible submitted core. See [event-window provenance](docs/release/event-window-provenance.md).
+> **Event-window build — branch `bob-2.0-build-2026-09-25`.** Authored by IBM Bob starting after kickoff on 2026-09-25. The pre-kickoff state on `main` is reference-only. See [event-window provenance](docs/release/event-window-provenance.md).
 
 **Reject the broad patch. Accept the narrow one. Export the proof.**
 
