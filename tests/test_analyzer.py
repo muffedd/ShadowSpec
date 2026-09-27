@@ -79,6 +79,10 @@ def test_root_must_be_beneath_allowed_root_before_repository_access(tmp_path):
         analyze_repository(outside_root, allowed_root=allowed_root)
 
 
+@pytest.mark.skipif(
+    __import__("sys").platform == "win32",
+    reason="symlink creation requires elevated privileges on Windows",
+)
 def test_symlinked_python_file_outside_allowed_root_is_not_read(tmp_path):
     allowed_root = tmp_path / "allowed"
     repository = allowed_root / "repository"

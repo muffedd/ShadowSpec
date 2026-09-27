@@ -34,6 +34,10 @@ Characterization checks and acceptance checks stay separate. The result is not a
 black-box “looks good” score: it is an explainable verdict with evidence behind the
 preserved contract and the intended delta.
 
+Bob writes the patch; ShadowSpec proves it changed nothing else. The more of a
+codebase an AI partner produces, the more a team needs a gate that checks
+behavior rather than the diff.
+
 ## What is included
 
 - Deterministic baseline, bad-candidate, and narrow-candidate fixture states.
@@ -75,4 +79,3 @@ autonomous legacy modernization, or autonomously merge or deploy.
 
 Public live-demo and source links are intentionally omitted here until they are
 verified. No unverified URL is part of this submission copy.
-

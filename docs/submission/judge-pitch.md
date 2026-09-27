@@ -6,6 +6,10 @@ ShadowSpec makes one narrow legacy-code change reviewable by freezing observed
 behavior, rejecting an over-broad patch, accepting the minimal patch, and exporting
 the evidence behind both verdicts.
 
+The short version: Bob writes the patch; ShadowSpec proves it changed nothing
+else. The more of a codebase an AI partner produces, the more a team needs a
+gate that checks behavior rather than the diff.
+
 ## The proof judges can see
 
 The audited `legacy_orders` fixture applies a discount code and writes an audit row
@@ -56,4 +60,3 @@ The verdict is scoped to named fixtures and observed behavior. ShadowSpec does n
 prove semantic equivalence beyond those fixtures, provide a complete dynamic
 call-graph, modernize arbitrary legacy repositories, execute arbitrary hosted
 repositories, autonomously merge or deploy, or provide an OS-level sandbox.
-

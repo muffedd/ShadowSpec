@@ -1,0 +1,196 @@
+diff --git a/.bob/skills/shadowspec-behavior-gate/SKILL.md b/.bob/skills/shadowspec-behavior-gate/SKILL.md
+new file mode 100644
+index 0000000..2d72fae
+--- /dev/null
++++ b/.bob/skills/shadowspec-behavior-gate/SKILL.md
+@@ -0,0 +1,24 @@
++---
++name: shadowspec-behavior-gate
++description: Run ShadowSpec's audited behavior-contract validator when reviewing the legacy SAVE10 fixture, a broad normalization patch, a narrow whitespace-only patch, or a behavior gate verdict.
++---
++
++# ShadowSpec behavior gate
++
++This skill connects Bob's review workflow to the real repository validator. It does not replace the validator or make Bob's own verdict authoritative.
++
++1. Work from this repository's root. First read `README.md` and `src/shadowspec/cli.py` to confirm the exact audited scope and the CLI command.
++2. Run the actual CLI in Bob's terminal, using the project's Python interpreter. For an optional direct tool call, if the local Bob MCP server is configured and connected, call `validate_fixture` for `bad` and `narrow` first, then corroborate the results with the CLI below. If MCP is unavailable, continue with the CLI. On Windows PowerShell:
++   ```powershell
++   $env:PYTHONPATH = 'src'; python -m shadowspec.cli run bad --format json
++   $env:PYTHONPATH = 'src'; python -m shadowspec.cli run narrow --format json
++   ```
++   On macOS/Linux:
++   ```sh
++   PYTHONPATH=src python -m shadowspec.cli run bad --format json
++   PYTHONPATH=src python -m shadowspec.cli run narrow --format json
++   ```
++   A rejected candidate exits 2 by design; do not interpret that exit code alone as a failed tool invocation. Parse the emitted JSON.
++3. Verify that bad reports `validation.verdict = rejected`, `validation.characterization_passed = false`, `validation.acceptance_passed = true`; narrow reports `accepted`, both booleans true. Quote the actual named failed checks and source/provenance hashes from the output. If command, integrity hash, or execution fails, report that rather than inventing a verdict.
++4. Do not claim this validates an arbitrary user patch: the CLI accepts only the server-owned `baseline`, `bad`, and `narrow` fixtures. No merge or deployment is authorized by a fixture verdict.
++5. When asked for proof, export the actual Bob task/session with commands and output to `bob_sessions/`, redacting secrets and absolute local paths per `bob_sessions/README.md`. Never handwrite a purported Bob transcript.
+diff --git a/README.md b/README.md
+index 889a5df..60b9cb0 100644
+--- a/README.md
++++ b/README.md
+@@ -178,6 +178,32 @@ Verified reference baseline: **76 tests passed, 3 platform-gated skips, 91.46% c
+ 
+ An accepted result means that the named observations passed for the audited fixture, together with the requested acceptance check. It does not prove semantic equivalence, complete dynamic-call coverage, or production safety for an arbitrary codebase.
+ 
++## Bob-native behavior gate
++
++IBM Bob can load the project skill at [`.bob/skills/shadowspec-behavior-gate/SKILL.md`](.bob/skills/shadowspec-behavior-gate/SKILL.md) in **Advanced mode**. Ask Bob to review the SAVE10 bad and narrow candidates with that skill. The skill directs Bob to invoke the actual checked-in ShadowSpec CLI, not to infer a result from instructions. Bob may ask to approve the skill unless Skills auto-approval is enabled. The rejected CLI exits with code 2 while still emitting JSON evidence; narrow exits 0.
++
++This is a repo-local Bob instruction integration, not a claim that the public demo performs Bob inference or that arbitrary patches can be validated. Until a real Bob session export showing both CLI calls lands in [`bob_sessions/`](bob_sessions/), the repository proves the skill definition and locally tested CLI, **not** that Bob ran this new workflow. Bob's [Skills documentation](https://bob.ibm.com/docs/ide/features/skills) describes the `.bob/skills/<name>/SKILL.md` convention and Advanced-mode requirement.
++
++### Optional Bob MCP tool (local only)
++
++For a direct Bob tool call rather than a skill-driven terminal call, install `pip install -r requirements-mcp.in` in the project's Python 3.12 environment. Configure Bob's **project** `.bob/mcp.json` on your machine as below, replacing both absolute paths with the path to your own checkout (and using `.venv\\Scripts\\python.exe` on Windows). Do not commit a machine-specific absolute path or put secrets in this configuration:
++
++```json
++{
++  "mcpServers": {
++    "shadowspec": {
++      "command": "C:\\path\\to\\ShadowSpec\\.venv\\Scripts\\python.exe",
++      "args": ["-m", "shadowspec.bob_mcp"],
++      "cwd": "C:\\path\\to\\ShadowSpec",
++      "env": {"PYTHONPATH": "src"}
++    }
++  }
++}
++```
++
++Reload the MCP servers in Bob, enable **Use MCP Servers**, then ask Bob to call `validate_fixture` twice, with `candidate` values `bad` and `narrow`. This adapter invokes the actual CLI in a bounded local subprocess and returns named checks and provenance. It accepts only the three integrity-checked bundled fixtures, does not open network access, and does not auto-merge. If Bob does not discover the tool, report that setup failure rather than describing an unobserved Bob run. Bob's [MCP configuration documentation](https://bob.ibm.com/docs/ide/configuration/mcp/mcp-in-bob) describes project `.bob/mcp.json`, STDIO transport, and the MCP settings toggle.
++
++
+ ## License
+ 
+ [MIT](LICENSE) © 2026 Sutharshan Kanthakumar. Dependency licenses are unchanged.
+diff --git a/docs/submission/bob-integration-proof-prompt.md b/docs/submission/bob-integration-proof-prompt.md
+new file mode 100644
+index 0000000..95a3e11
+--- /dev/null
++++ b/docs/submission/bob-integration-proof-prompt.md
+@@ -0,0 +1,9 @@
++# Bob-native integration proof run (instructions, not a transcript)
++
++Use the event branch `bob-2.0-build-2026-09-25` in your local IBM Bob IDE. Pull the integration patch before this run. Confirm `.bob/skills/shadowspec-behavior-gate/SKILL.md` is visible under Bob Settings > Skills and that Bob is in Advanced mode. Approve the skill activation if prompted. For MCP proof, install `requirements-mcp.in`, create your *local* `.bob/mcp.json` from the README example with your actual absolute paths, turn on "Use MCP Servers," and reload servers. Don't commit the machine-specific configuration or secrets.
++
++Paste this prompt into Bob:
++
++> Use the ShadowSpec behavior gate skill. Check this repo's audited SAVE10 fixture with the bad and narrow candidates. If the `shadowspec` MCP server is connected, invoke `validate_fixture` with `candidate="bad"` and then `candidate="narrow"`. In either case, also run the real ShadowSpec CLI once for each candidate. Print each actual verdict, the characterization and acceptance booleans, named failed checks, and source hashes. The rejected CLI's exit code 2 is expected. If the skill or MCP tool isn't available, say exactly which part failed. Do not edit fixture sources or claim arbitrary-patch validation.
++
++After the run, export the actual Bob task/session as Markdown via Bob's export control; save it under `bob_sessions/` with a date/topic filename. Save a screenshot of Bob's tool calls and outputs if available. Follow `bob_sessions/README.md` to redact tokens, local absolute paths and unrelated details. Add an honest row to `bob_sessions/MANIFEST.md`: label Skill, MCP and CLI separately as observed or not observed. If Bob did not make both tool calls, do not substitute this prompt or local MCP smoke-test for a real Bob transcript.
+diff --git a/requirements-mcp.in b/requirements-mcp.in
+new file mode 100644
+index 0000000..f092230
+--- /dev/null
++++ b/requirements-mcp.in
+@@ -0,0 +1,2 @@
++# Optional IBM Bob MCP adapter only. The CLI and web demo do not need MCP.
++mcp>=1.20,<2
+diff --git a/src/shadowspec/bob_mcp.py b/src/shadowspec/bob_mcp.py
+new file mode 100644
+index 0000000..b782c28
+--- /dev/null
++++ b/src/shadowspec/bob_mcp.py
+@@ -0,0 +1,69 @@
++"""Optional, local-only IBM Bob MCP adapter for audited ShadowSpec fixtures.
++
++Install the MCP Python SDK separately; the zero-key demo does not need it.
++The JSON-RPC protocol uses stdout. Diagnostics belong on stderr only.
++"""
++from __future__ import annotations
++
++import json
++import os
++import subprocess
++import sys
++from pathlib import Path
++
++from mcp.server.fastmcp import FastMCP
++
++ROOT = Path(__file__).resolve().parents[2]
++mcp = FastMCP("ShadowSpec audited behavior gate")
++
++
++@mcp.tool()
++def validate_fixture(candidate: str) -> dict:
++    """Run the real ShadowSpec CLI on one audited fixture: bad, narrow, or baseline.
++
++    This does not evaluate arbitrary patches. A rejected verdict is a valid
++    result, not an MCP error. The full evidence remains in the CLI's JSON.
++    """
++    if candidate not in {"baseline", "bad", "narrow"}:
++        return {"error": "candidate must be baseline, bad, or narrow"}
++
++    env = os.environ.copy()
++    env["PYTHONPATH"] = str(ROOT / "src")
++    try:
++        result = subprocess.run(
++            [sys.executable, "-m", "shadowspec.cli", "run", candidate, "--format", "json"],
++            cwd=ROOT,
++            env=env,
++            capture_output=True,
++            text=True,
++            timeout=12,
++            check=False,
++        )
++    except subprocess.TimeoutExpired:
++        return {"candidate": candidate, "error": "validator timed out"}
++
++    if result.returncode not in (0, 2):
++        return {"candidate": candidate, "error": "validator failed", "exit_code": result.returncode,
++                "stderr": result.stderr[-1000:]}
++    try:
++        evidence = json.loads(result.stdout)
++        validation = evidence["validation"]
++    except (ValueError, KeyError, TypeError):
++        return {"candidate": candidate, "error": "validator returned invalid evidence",
++                "exit_code": result.returncode}
++    verdict = validation.get("verdict")
++    if verdict not in ("accepted", "rejected") or (result.returncode == 0) != (verdict == "accepted"):
++        return {"candidate": candidate, "error": "validator exit code and verdict disagree"}
++    return {
++        "candidate": candidate,
++        "verdict": verdict,
++        "characterization_passed": validation.get("characterization_passed"),
++        "acceptance_passed": validation.get("acceptance_passed"),
++        "failed_checks": validation.get("failed_checks"),
++        "provenance": {key: validation.get(key) for key in ("source_sha256", "baseline_sha256", "validator_sha256", "runner_sha256")},
++        "scope": "Only the three bundled, integrity-checked fixtures; not arbitrary patches",
++    }
++
++
++if __name__ == "__main__":
++    mcp.run(transport="stdio")
+diff --git a/tests/test_bob_mcp.py b/tests/test_bob_mcp.py
+new file mode 100644
+index 0000000..245b7a5
+--- /dev/null
++++ b/tests/test_bob_mcp.py
+@@ -0,0 +1,25 @@
++"""The optional Bob MCP adapter returns the real fixture verdicts."""
++from __future__ import annotations
++
++import pytest
++
++pytest.importorskip("mcp")
++from shadowspec.bob_mcp import validate_fixture
++
++
++def test_bob_mcp_rejects_broad_patch_and_accepts_narrow_patch():
++    bad = validate_fixture("bad")
++    narrow = validate_fixture("narrow")
++    assert bad["verdict"] == "rejected"
++    assert bad["characterization_passed"] is False
++    assert bad["acceptance_passed"] is True
++    assert any("lowercase" in check for check in bad["failed_checks"])
++    assert narrow["verdict"] == "accepted"
++    assert narrow["characterization_passed"] is True
++    assert narrow["acceptance_passed"] is True
++    assert bad["provenance"]["source_sha256"] != narrow["provenance"]["source_sha256"]
++    assert len(bad["provenance"]["validator_sha256"]) == 64
++
++
++def test_bob_mcp_rejects_unapproved_candidate():
++    assert "error" in validate_fixture("../secrets")

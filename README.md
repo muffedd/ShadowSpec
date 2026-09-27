@@ -1,12 +1,30 @@
 # ShadowSpec
 
-> **Pre-kickoff reference baseline.** This repository is scaffolding and review evidence, not the eligible submitted core. See [event-window provenance](docs/release/event-window-provenance.md).
+> **Event-window build — branch `bob-2.0-build-2026-09-25`.** Authored by IBM Bob starting after kickoff on 2026-09-25. The pre-kickoff state on `main` is reference-only. See [event-window provenance](docs/release/event-window-provenance.md).
 
 **Reject the broad patch. Accept the narrow one. Export the proof.**
 
 ShadowSpec is a zero-key evidence workbench for one risky maintenance job: changing undocumented legacy behavior without quietly changing something else.
 
 The bundled demo asks for one precise change to a Python order service: accept surrounding whitespace in `SAVE10` while preserving case sensitivity, pricing, errors, and the SQLite audit write.
+
+## Live demo
+
+- **Live demo:** https://shadowspec-demo.pages.dev
+- **Source:** https://github.com/muffedd/ShadowSpec
+
+### Try it in 60 seconds
+
+1. Open the live demo and run **Plausible bad candidate**. Verdict: REJECTED - the new whitespace case passes, but lowercase `save10` behavior changed.
+2. Run **Narrow candidate**. Verdict: ACCEPTED - preserved behavior and the requested delta both pass.
+3. Open the evidence drawer to see the diff, provenance hashes, and export a condensed preview.
+
+| Build proof | |
+| --- | --- |
+| Tests | 76 passed, 3 platform-gated skips |
+| Coverage | 91.46% (CI enforces >= 85%) |
+| IBM Bob sessions | 6 exported task transcripts + 6 consumption screenshots in [`bob_sessions/`](bob_sessions/) |
+
 
 ## Problem
 
@@ -31,6 +49,12 @@ ShadowSpec never treats “the new example works” as sufficient evidence. Exis
 ## Setup
 
 Requires Python 3.12 or later.
+
+The pinned install below requires Python 3.12 or later. The engine itself is
+standard-library only: to run just the core test suite without the full pinned
+install, `pip install pytest pytest-cov` is enough (`tests/test_app.py` needs
+Streamlit and `tests/test_deployment.py` needs Python 3.11+; both are
+platform-gated).
 
 ```bash
 python -m venv .venv
@@ -92,10 +116,10 @@ use in an IBM Bob IDE. They are workflow guidance, not evidence that Bob perform
 this build. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md),
 and the role contracts under [`bob/`](bob/).
 
-No Bob runtime session or session export is included in the current repository.
-If the workflow is later run in IBM Bob, its redacted export belongs in
-[`bob_sessions/`](bob_sessions/). The public zero-key demo performs deterministic
-local analysis and does not impersonate live Bob inference.
+Bob session exports from the `bob-2.0-build-2026-09-25` build are in
+[`bob_sessions/`](bob_sessions/). These are redacted task-history exports from
+the IBM Bob IDE sessions that authored this branch. The public zero-key demo
+performs deterministic local analysis and does not impersonate live Bob inference.
 
 ## Evidence pack
 
@@ -131,12 +155,12 @@ See [security.md](docs/submission/security.md) for the threat boundary and limit
 pytest -q --cov=shadowspec --cov-report=term --cov-fail-under=85
 ```
 
-Verified reference baseline: **64 tests passed, 89.29% coverage**. CI enforces at least 85% coverage.
+Verified reference baseline: **76 tests passed, 3 platform-gated skips, 91.46% coverage**. CI enforces at least 85% coverage.
 
 ## Demo and submission
 
-- Live demo: `PUBLIC_URL_PENDING`
-- GitHub repository: `GITHUB_URL_PENDING`
+- Live demo: https://shadowspec-demo.pages.dev
+- GitHub repository: https://github.com/muffedd/ShadowSpec
 - Demo video: `VIDEO_URL_PENDING`
 
 ## Submission materials
@@ -153,6 +177,32 @@ Verified reference baseline: **64 tests passed, 89.29% coverage**. CI enforces a
 ## Scope limits
 
 An accepted result means that the named observations passed for the audited fixture, together with the requested acceptance check. It does not prove semantic equivalence, complete dynamic-call coverage, or production safety for an arbitrary codebase.
+
+## Bob-native behavior gate
+
+IBM Bob can load the project skill at [`.bob/skills/shadowspec-behavior-gate/SKILL.md`](.bob/skills/shadowspec-behavior-gate/SKILL.md) in **Advanced mode**. Ask Bob to review the SAVE10 bad and narrow candidates with that skill. The skill directs Bob to invoke the actual checked-in ShadowSpec CLI, not to infer a result from instructions. Bob may ask to approve the skill unless Skills auto-approval is enabled. The rejected CLI exits with code 2 while still emitting JSON evidence; narrow exits 0.
+
+This is a repo-local Bob instruction integration, not a claim that the public demo performs Bob inference or that arbitrary patches can be validated. Until a real Bob session export showing both CLI calls lands in [`bob_sessions/`](bob_sessions/), the repository proves the skill definition and locally tested CLI, **not** that Bob ran this new workflow. Bob's [Skills documentation](https://bob.ibm.com/docs/ide/features/skills) describes the `.bob/skills/<name>/SKILL.md` convention and Advanced-mode requirement.
+
+### Optional Bob MCP tool (local only)
+
+For a direct Bob tool call rather than a skill-driven terminal call, install `pip install -r requirements-mcp.in` in the project's Python 3.12 environment. Configure Bob's **project** `.bob/mcp.json` on your machine as below, replacing both absolute paths with the path to your own checkout (and using `.venv\\Scripts\\python.exe` on Windows). Do not commit a machine-specific absolute path or put secrets in this configuration:
+
+```json
+{
+  "mcpServers": {
+    "shadowspec": {
+      "command": "C:\\path\\to\\ShadowSpec\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "shadowspec.bob_mcp"],
+      "cwd": "C:\\path\\to\\ShadowSpec",
+      "env": {"PYTHONPATH": "src"}
+    }
+  }
+}
+```
+
+Reload the MCP servers in Bob, enable **Use MCP Servers**, then ask Bob to call `validate_fixture` twice, with `candidate` values `bad` and `narrow`. This adapter invokes the actual CLI in a bounded local subprocess and returns named checks and provenance. It accepts only the three integrity-checked bundled fixtures, does not open network access, and does not auto-merge. If Bob does not discover the tool, report that setup failure rather than describing an unobserved Bob run. Bob's [MCP configuration documentation](https://bob.ibm.com/docs/ide/configuration/mcp/mcp-in-bob) describes project `.bob/mcp.json`, STDIO transport, and the MCP settings toggle.
+
 
 ## License
 
