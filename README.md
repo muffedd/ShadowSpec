@@ -1,6 +1,6 @@
 # ShadowSpec
 
-> **Event-window build — branch `bob-2.0-build-2026-09-25`.** Authored by IBM Bob starting after kickoff on 2026-09-25. The pre-kickoff state on `main` is reference-only. See [event-window provenance](docs/release/event-window-provenance.md).
+> **Submission branch: `main`.** Full IBM Bob-built event-window project. [Live demo](https://shadowspec-demo.pages.dev) · 81 tests passed · 92.32% coverage (with optional MCP test dependencies). See [event-window provenance](docs/release/event-window-provenance.md).
 
 **Reject the broad patch. Accept the narrow one. Export the proof.**
 
@@ -21,8 +21,8 @@ The bundled demo asks for one precise change to a Python order service: accept s
 
 | Build proof | |
 | --- | --- |
-| Tests | 76 passed, 3 platform-gated skips |
-| Coverage | 91.46% (CI enforces >= 85%) |
+| Tests | 81 passed with optional MCP dependencies |
+| Coverage | 92.32% with optional MCP dependencies (CI enforces >= 85%) |
 | IBM Bob sessions | 6 exported task transcripts + 6 consumption screenshots in [`bob_sessions/`](bob_sessions/) |
 
 
@@ -155,7 +155,7 @@ See [security.md](docs/submission/security.md) for the threat boundary and limit
 pytest -q --cov=shadowspec --cov-report=term --cov-fail-under=85
 ```
 
-Verified reference baseline: **76 tests passed, 3 platform-gated skips, 91.46% coverage**. CI enforces at least 85% coverage.
+Verified reference baseline: **81 tests passed, 92.32% coverage** with optional MCP dependencies installed. CI enforces at least 85% coverage.
 
 ## Demo and submission
 
