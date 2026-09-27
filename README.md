@@ -178,6 +178,32 @@ Verified reference baseline: **76 tests passed, 3 platform-gated skips, 91.46% c
 
 An accepted result means that the named observations passed for the audited fixture, together with the requested acceptance check. It does not prove semantic equivalence, complete dynamic-call coverage, or production safety for an arbitrary codebase.
 
+## Bob-native behavior gate
+
+IBM Bob can load the project skill at [`.bob/skills/shadowspec-behavior-gate/SKILL.md`](.bob/skills/shadowspec-behavior-gate/SKILL.md) in **Advanced mode**. Ask Bob to review the SAVE10 bad and narrow candidates with that skill. The skill directs Bob to invoke the actual checked-in ShadowSpec CLI, not to infer a result from instructions. Bob may ask to approve the skill unless Skills auto-approval is enabled. The rejected CLI exits with code 2 while still emitting JSON evidence; narrow exits 0.
+
+This is a repo-local Bob instruction integration, not a claim that the public demo performs Bob inference or that arbitrary patches can be validated. Until a real Bob session export showing both CLI calls lands in [`bob_sessions/`](bob_sessions/), the repository proves the skill definition and locally tested CLI, **not** that Bob ran this new workflow. Bob's [Skills documentation](https://bob.ibm.com/docs/ide/features/skills) describes the `.bob/skills/<name>/SKILL.md` convention and Advanced-mode requirement.
+
+### Optional Bob MCP tool (local only)
+
+For a direct Bob tool call rather than a skill-driven terminal call, install `pip install -r requirements-mcp.in` in the project's Python 3.12 environment. Configure Bob's **project** `.bob/mcp.json` on your machine as below, replacing both absolute paths with the path to your own checkout (and using `.venv\\Scripts\\python.exe` on Windows). Do not commit a machine-specific absolute path or put secrets in this configuration:
+
+```json
+{
+  "mcpServers": {
+    "shadowspec": {
+      "command": "C:\\path\\to\\ShadowSpec\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "shadowspec.bob_mcp"],
+      "cwd": "C:\\path\\to\\ShadowSpec",
+      "env": {"PYTHONPATH": "src"}
+    }
+  }
+}
+```
+
+Reload the MCP servers in Bob, enable **Use MCP Servers**, then ask Bob to call `validate_fixture` twice, with `candidate` values `bad` and `narrow`. This adapter invokes the actual CLI in a bounded local subprocess and returns named checks and provenance. It accepts only the three integrity-checked bundled fixtures, does not open network access, and does not auto-merge. If Bob does not discover the tool, report that setup failure rather than describing an unobserved Bob run. Bob's [MCP configuration documentation](https://bob.ibm.com/docs/ide/configuration/mcp/mcp-in-bob) describes project `.bob/mcp.json`, STDIO transport, and the MCP settings toggle.
+
+
 ## License
 
 [MIT](LICENSE) © 2026 Sutharshan Kanthakumar. Dependency licenses are unchanged.

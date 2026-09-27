@@ -1,0 +1,2 @@
+# Optional IBM Bob MCP adapter only. The CLI and web demo do not need MCP.
+mcp>=1.20,<2
