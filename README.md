@@ -111,10 +111,7 @@ ShadowSpec includes repository guidance for five Bob roles:
 4. Critic/security reviewer
 5. Release reviewer
 
-The checked-in Markdown files propose a full-repository, actor-critic handoff for
-use in an IBM Bob IDE. They are workflow guidance, not evidence that Bob performed
-this build. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md),
-and the role contracts under [`bob/`](bob/).
+The five-role Markdown files describe the actor-critic workflow; they are not executable Bob modes. The [project Bob Skill](.bob/skills/shadowspec-behavior-gate/SKILL.md) and [local MCP adapter](src/shadowspec/bob_mcp.py) are working integrations, tested locally against the bad and narrow fixtures. No Bob IDE run of this new Skill/MCP workflow has been witnessed yet. See [AGENTS.md](AGENTS.md), [Bob workflow](docs/architecture/bob-workflow.md), and the role contracts under [`bob/`](bob/).
 
 Bob session exports from the `bob-2.0-build-2026-09-25` build are in
 [`bob_sessions/`](bob_sessions/). These are redacted task-history exports from
@@ -161,7 +158,7 @@ Verified reference baseline: **81 tests passed, 92.32% coverage** with optional 
 
 - Live demo: https://shadowspec-demo.pages.dev
 - GitHub repository: https://github.com/muffedd/ShadowSpec
-- Demo video: `VIDEO_URL_PENDING`
+- Demo video: [Watch the submission video](https://storage.googleapis.com/lablab-video-submissions/submissions/w0i4c3nti73x29jsru3nonv6/wpr0eqljacjegxv9uwc0ngq3/video/video_w2cq4wfapnloy83qs4yikcb7.mp4) ([lablab submission](https://lablab.ai/ai-hackathons/ibm-bob-2-hackathon/shadowspec/shadowspec-never-break-old-code-again))
 
 ## Submission materials
 
