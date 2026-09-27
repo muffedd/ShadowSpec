@@ -12,7 +12,7 @@ def process_order(order: dict[str, object], db_path: Path) -> dict[str, int]:
         raise ValueError("subtotal_cents must be non-negative")
 
     code = str(order.get("discount_code", ""))
-    discount = subtotal // 10 if code.strip() == "SAVE10" else 0
+    discount = subtotal // 10 if code.strip().upper() == "SAVE10" else 0
     total = subtotal - discount
 
     with sqlite3.connect(db_path) as connection:
