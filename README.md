@@ -8,6 +8,13 @@ ShadowSpec is a zero-key evidence workbench for one risky maintenance job: chang
 
 The bundled demo asks for one precise change to a Python order service: accept surrounding whitespace in `SAVE10` while preserving case sensitivity, pricing, errors, and the SQLite audit write.
 
+### Proof at a glance
+
+- [6 exported IBM Bob IDE task sessions and screenshots](bob_sessions/MANIFEST.md) document the event-window build.
+- The [Bob Skill](.bob/skills/shadowspec-behavior-gate/SKILL.md) and [local MCP server](src/shadowspec/bob_mcp.py) call the audited validator. The MCP tool was exercised end-to-end with a local SDK client: bad REJECTED, narrow ACCEPTED. [Setup and proof-run instructions](docs/submission/bob-integration-proof-prompt.md).
+- 81 tests passed and 92.32% coverage locally with optional MCP dependencies; [CI on main](https://github.com/muffedd/ShadowSpec/actions/runs/36305904279) passed separately. [Try the live demo](https://shadowspec-demo.pages.dev).
+- Scope: the Skill/MCP was locally verified; no Bob IDE run of this new integration has been witnessed or exported. Verdicts cover only the bundled fixtures, not arbitrary patches.
+
 ## Live demo
 
 - **Live demo:** https://shadowspec-demo.pages.dev
